@@ -1,0 +1,1380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title><%= destination.name %> - Unforgettable Journeys</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Poppins:wght@300;400;500;600&family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.skypack.dev/gsap@3.12.0"></script>
+    <script src="https://cdn.skypack.dev/gsap@3.12.0/ScrollTrigger"></script>
+    <style>
+        :root {
+            /* Light mode variables */
+            --primary-color: #2a6dd2;
+            --secondary-color: #ff7e33;
+            --accent-color: #34d399;
+            --text-color: #2d3748;
+            --light-text: #64748b;
+            --background-color: #ffffff;
+            --section-bg: #f8fafc;
+            --card-bg: #ffffff;
+            --border-radius: 16px;
+            --box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+            --transition: all 0.4s cubic-bezier(0.215, 0.61, 0.355, 1);
+            /* Scroll effect variables */
+            --start: 0;
+            --end: 360;
+            --lightness: 65%;
+            --base-chroma: 0.3;
+            /* Dark mode variables */
+            --dark-primary: #4d8df7;
+            --dark-secondary: #ff9f5a;
+            --dark-accent: #4ade80;
+            --dark-text: #f1f5f9;
+            --dark-light-text: #cbd5e1;
+            --dark-bg: #0f172a;
+            --dark-section-bg: #1e293b;
+            --dark-card-bg: #1e293b;
+            --dark-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
+        }
+
+        [data-theme="dark"] {
+            --primary-color: var(--dark-primary);
+            --secondary-color: var(--dark-secondary);
+            --accent-color: var(--dark-accent);
+            --text-color: var(--dark-text);
+            --light-text: var(--dark-light-text);
+            --background-color: var(--dark-bg);
+            --section-bg: var(--dark-section-bg);
+            --card-bg: var(--dark-card-bg);
+            --box-shadow: var(--dark-shadow);
+        }
+
+        [data-theme="dark"] .hero-overlay { 
+            background: linear-gradient(to bottom, rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.85)); 
+        }
+        [data-theme="dark"] .feature { 
+            background-color: #334155; 
+            color: var(--dark-text);
+        }
+        [data-theme="dark"] .overview { 
+            background-color: var(--dark-section-bg); 
+        }
+        [data-theme="dark"] .info-card { 
+            background-color: var(--dark-card-bg); 
+        }
+        [data-theme="dark"] .info-card-header { 
+            background-color: #334155; 
+        }
+        [data-theme="dark"] .info-list li { 
+            border-bottom: 1px solid #475569; 
+        }
+        [data-theme="dark"] .footer { 
+            background-color: #0f172a; 
+        }
+        [data-theme="dark"] .gallery-nav-btn { 
+            background-color: rgba(30, 41, 59, 0.9); 
+            color: var(--dark-text);
+        }
+        [data-theme="dark"] .gallery-nav-btn:hover { 
+            background-color: #334155; 
+        }
+        [data-theme="dark"] .rating-card {
+            background-color: var(--dark-card-bg);
+        }
+        [data-theme="dark"] .no-ratings {
+            background-color: var(--dark-card-bg);
+        }
+        [data-theme="dark"] .cta-section {
+            background-color: #334155;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            transition: background-color var(--transition), color var(--transition);
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            color: var(--text-color);
+            overflow-x: hidden;
+            background-color: var(--background-color);
+            line-height: 1.6;
+            position: relative;
+        }
+
+        .theme-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background-color: var(--card-bg);
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: var(--box-shadow);
+            transition: var(--transition);
+            color: var(--primary-color);
+            font-size: 1.2rem;
+        }
+
+        .theme-toggle:hover {
+            transform: scale(1.1) rotate(10deg);
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .hero-container {
+            height: 100vh;
+            width: 100%;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            position: absolute;
+            top: 0;
+            left: 0;
+            transition: transform 0.8s cubic-bezier(0.215, 0.61, 0.355, 1);
+            filter: brightness(0.9);
+        }
+
+        .hero-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to bottom, rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.7));
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem;
+            text-align: center;
+            color: white;
+        }
+
+        .hero-title {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(3rem, 10vw, 6rem);
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            text-transform: uppercase;
+            letter-spacing: 0.2rem;
+            text-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+            opacity: 0;
+            transform: translateY(30px);
+            animation: fadeInUp 1.2s forwards 0.5s;
+        }
+
+        .hero-subtitle {
+            font-size: clamp(1.1rem, 3vw, 1.6rem);
+            max-width: 800px;
+            margin-bottom: 2.5rem;
+            opacity: 0;
+            transform: translateY(30px);
+            animation: fadeInUp 1.2s forwards 0.8s;
+            font-weight: 300;
+            line-height: 1.5;
+        }
+
+        @keyframes fadeInUp {
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .scroll-indicator {
+            position: absolute;
+            bottom: 2.5rem;
+            left: 50%;
+            transform: translateX(-50%);
+            color: white;
+            font-size: 2rem;
+            animation: bounce 2.5s infinite;
+            cursor: pointer;
+            opacity: 0.8;
+            transition: var(--transition);
+            z-index: 10;
+        }
+
+        .scroll-indicator:hover { 
+            opacity: 1;
+            transform: translateX(-50%) scale(1.2);
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateX(-50%) translateY(0); }
+            40% { transform: translateX(-50%) translateY(-20px); }
+            60% { transform: translateX(-50%) translateY(-10px); }
+        }
+
+        .content-section {
+            background-color: var(--background-color);
+            padding: 7rem 2rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+        }
+
+        .section-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.8rem;
+            margin-bottom: 3.5rem;
+            position: relative;
+            text-align: center;
+            color: var(--text-color);
+        }
+
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: -1.2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 4px;
+            background-color: var(--secondary-color);
+            border-radius: 2px;
+        }
+
+        .container {
+            max-width: 1200px;
+            width: 100%;
+            margin: 0 auto;
+        }
+
+        .overview {
+            background-color: var(--card-bg);
+            border-radius: var(--border-radius);
+            padding: 3.5rem;
+            box-shadow: var(--box-shadow);
+            margin-bottom: 4.5rem;
+            transition: var(--transition);
+        }
+
+        .overview:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+        }
+
+        .overview-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 3.5rem;
+            align-items: center;
+        }
+
+        .overview-text h3 {
+            font-family: 'Playfair Display', serif;
+            font-size: 2rem;
+            margin-bottom: 1.8rem;
+            color: var(--primary-color);
+        }
+
+        .overview-text p {
+            margin-bottom: 1.8rem;
+            font-size: 1.15rem;
+            color: var(--light-text);
+            line-height: 1.8;
+            font-weight: 300;
+        }
+
+        .overview-image {
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            box-shadow: var(--box-shadow);
+            transition: transform 0.6s cubic-bezier(0.215, 0.61, 0.355, 1);
+            position: relative;
+        }
+
+        .overview-image::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, rgba(42, 109, 210, 0.2), rgba(255, 126, 51, 0.2));
+            opacity: 0;
+            transition: var(--transition);
+        }
+
+        .overview-image:hover { 
+            transform: translateY(-10px) scale(1.02); 
+        }
+
+        .overview-image:hover::after {
+            opacity: 1;
+        }
+
+        .overview-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.8s ease;
+        }
+
+        .overview-image:hover img { 
+            transform: scale(1.05); 
+        }
+
+        /* Features Section with Scroll Effect */
+        .features-container {
+            padding: 2rem 0;
+            width: 100%;
+            max-width: 1200px;
+        }
+
+        .features-container .content {
+            display: flex;
+            align-items: flex-start;
+            gap: 2rem;
+        }
+
+        .features-container h2 {
+            position: sticky;
+            top: calc(50% - 0.5lh);
+            font-family: 'Playfair Display', serif;
+            font-size: 2rem;
+            margin: 0;
+            height: fit-content;
+            font-weight: 600;
+            color: var(--primary-color);
+            background: linear-gradient(var(--primary-color) 50%, var(--secondary-color));
+            background-clip: text;
+            color: transparent;
+        }
+
+        .features-container ul {
+            padding: 0;
+            margin: 0;
+            list-style-type: none;
+            font-weight: 500;
+            --step: calc((var(--end) - var(--start)) / (var(--count) - 1));
+        }
+
+        .features-container li {
+            font-size: 1.2rem;
+            padding: 1rem 0;
+            color: oklch(var(--lightness) var(--base-chroma) calc(var(--start) + (var(--step) * var(--i))));
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+
+        @supports (animation-timeline: scroll()) and (animation-range: 0% 100%) {
+            .features-container[data-animate='true'] li {
+                opacity: 0.2;
+                animation: brighten 0.5s linear both;
+                animation-range: cover calc(50% - 1lh) calc(50% + 1lh);
+                animation-timeline: view();
+            }
+            
+            .features-container[data-animate='true'] li:first-of-type {
+                --start-opacity: 1;
+            }
+            
+            .features-container[data-animate='true'] li:last-of-type {
+                --brightness: 1;
+                --end-opacity: 1;
+            }
+        }
+
+        @keyframes brighten {
+            0% {
+                opacity: var(--start-opacity, 0.2);
+            }
+            50% {
+                opacity: 1;
+                filter: brightness(var(--brightness, 1.2));
+            }
+            100% {
+                opacity: var(--end-opacity, 0.2);
+            }
+        }
+
+        .photo-gallery-section {
+            text-align: center;
+            padding: 7rem 0;
+            background-color: var(--section-bg);
+            overflow: hidden;
+            position: relative;
+        }
+
+        .photo-gallery-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at top right, rgba(52, 211, 153, 0.1), transparent 70%),
+                        radial-gradient(circle at bottom left, rgba(42, 109, 210, 0.1), transparent 70%);
+            pointer-events: none;
+        }
+
+        .horizontal-gallery-container {
+            position: relative;
+            width: 100%;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .horizontal-gallery {
+            display: flex;
+            gap: 25px;
+            overflow-x: auto;
+            scroll-behavior: smooth;
+            padding: 40px 10px;
+            scroll-snap-type: x mandatory;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+        }
+
+        .horizontal-gallery::-webkit-scrollbar { 
+            display: none; 
+        }
+
+        .gallery-card {
+            flex: 0 0 auto;
+            width: 380px;
+            height: 280px;
+            perspective: 1000px;
+            scroll-snap-align: center;
+        }
+
+        .gallery-card-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            transition: transform 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+            transform-style: preserve-3d;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+            border-radius: var(--border-radius);
+            overflow: hidden;
+        }
+
+        .gallery-card:hover .gallery-card-inner {
+            transform: rotateY(8deg) translateZ(20px);
+        }
+
+        .gallery-card-inner img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: var(--border-radius);
+            transition: transform 0.8s ease;
+        }
+
+        .gallery-card:hover .gallery-card-inner img { 
+            transform: scale(1.08); 
+        }
+
+        .gallery-navigation {
+            position: absolute;
+            width: 100%;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            justify-content: space-between;
+            padding: 0 5px;
+            pointer-events: none;
+        }
+
+        .gallery-nav-btn {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background-color: rgba(255, 255, 255, 0.95);
+            color: var(--primary-color);
+            border: none;
+            font-size: 1.3rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+            transition: all 0.3s ease;
+            pointer-events: auto;
+            z-index: 10;
+        }
+
+        .gallery-nav-btn:hover {
+            background-color: var(--primary-color);
+            color: white;
+            transform: scale(1.15);
+        }
+
+        .prev-btn { margin-left: 15px; }
+        .next-btn { margin-right: 15px; }
+
+        .gallery-card-inner::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to top, rgba(0, 0, 0, 0.2), transparent);
+            pointer-events: none;
+        }
+
+        .ratings-section {
+            padding: 7rem 0;
+            background-color: var(--section-bg);
+            text-align: center;
+            position: relative;
+        }
+
+        .ratings-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at bottom right, rgba(255, 126, 51, 0.1), transparent 70%);
+            pointer-events: none;
+        }
+
+        .ratings-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 2.5rem;
+        }
+
+        .rating-card {
+            background-color: var(--card-bg);
+            border-radius: var(--border-radius);
+            padding: 2.5rem;
+            box-shadow: var(--box-shadow);
+            transition: var(--transition);
+            text-align: left;
+            display: flex;
+            flex-direction: column;
+            gap: 1.2rem;
+            height: 100%;
+        }
+
+        .rating-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+        }
+
+        .rating-header {
+            display: flex;
+            align-items: center;
+            gap: 1.2rem;
+            margin-bottom: 1.2rem;
+        }
+
+        .rating-user {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.6rem;
+            color: var(--primary-color);
+        }
+
+        .rating-stars {
+            display: flex;
+            gap: 0.3rem;
+        }
+
+        .rating-stars i {
+            color: var(--secondary-color);
+            font-size: 1.3rem;
+        }
+
+        .rating-stars .fa-star-o {
+            color: var(--light-text);
+        }
+
+        .rating-review {
+            font-size: 1.15rem;
+            color: var(--text-color);
+            line-height: 1.7;
+            font-weight: 300;
+        }
+
+        .rating-image {
+            max-width: 100%;
+            height: auto;
+            border-radius: var(--border-radius);
+            margin-top: 1.2rem;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+            transition: var(--transition);
+        }
+
+        .rating-card:hover .rating-image {
+            transform: scale(1.03);
+        }
+
+        .rating-date {
+            font-size: 0.95rem;
+            color: var(--light-text);
+            text-align: right;
+            margin-top: auto;
+            font-style: italic;
+        }
+
+        .no-ratings {
+            font-size: 1.3rem;
+            color: var(--light-text);
+            padding: 3rem;
+            background-color: var(--card-bg);
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            grid-column: 1 / -1;
+            text-align: center;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2.5rem;
+            width: 100%;
+        }
+
+        .info-card {
+            background-color: var(--card-bg);
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            box-shadow: var(--box-shadow);
+            transition: var(--transition);
+            height: 100%;
+        }
+
+        .info-card:hover { 
+            transform: translateY(-10px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+        }
+
+        .info-card-header {
+            padding: 1.8rem;
+            background-color: var(--primary-color);
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .info-card-header::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 100px;
+            height: 100px;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.2), transparent 70%);
+            transform: translate(50%, -50%);
+        }
+
+        .info-card-header h3 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.6rem;
+            display: flex;
+            align-items: center;
+            position: relative;
+            z-index: 1;
+        }
+
+        .info-card-header h3 i {
+            margin-right: 1rem;
+            font-size: 1.8rem;
+        }
+
+        .info-card-body {
+            padding: 1.8rem;
+        }
+
+        .info-list {
+            list-style: none;
+        }
+
+        .info-list li {
+            padding: 1rem 0;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+            display: flex;
+            align-items: flex-start;
+            transition: var(--transition);
+        }
+
+        .info-list li:hover {
+            transform: translateX(5px);
+        }
+
+        .info-list li:last-child { 
+            border-bottom: none; 
+        }
+
+        .info-list li i {
+            color: var(--secondary-color);
+            margin-right: 1rem;
+            margin-top: 0.3rem;
+            font-size: 1.1rem;
+        }
+
+        .cta-section {
+            text-align: center;
+            padding: 5rem 3rem;
+            background-color: var(--section-bg);
+            border-radius: var(--border-radius);
+            margin-top: 5rem;
+            position: relative;
+            overflow: hidden;
+            box-shadow: var(--box-shadow);
+        }
+
+        .cta-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at top left, rgba(42, 109, 210, 0.1), transparent 50%),
+                radial-gradient(circle at bottom right, rgba(255, 126, 51, 0.1), transparent 50%);
+            pointer-events: none;
+        }
+
+        .cta-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.3rem;
+            margin-bottom: 1.8rem;
+            color: var(--primary-color);
+            position: relative;
+            z-index: 1;
+        }
+
+        .cta-text {
+            max-width: 700px;
+            margin: 0 auto 2.5rem;
+            font-size: 1.2rem;
+            color: var(--light-text);
+            position: relative;
+            z-index: 1;
+            line-height: 1.7;
+        }
+
+        .cta-button {
+            display: inline-block;
+            padding: 1.2rem 3rem;
+            background-color: var(--secondary-color);
+            color: white;
+            font-weight: 600;
+            border-radius: 50px;
+            text-decoration: none;
+            box-shadow: 0 8px 25px rgba(255, 126, 51, 0.3);
+            transition: var(--transition);
+            font-size: 1.1rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            position: relative;
+            z-index: 1;
+            overflow: hidden;
+        }
+
+        .cta-button::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, rgba(255, 255, 255, 0.1), transparent);
+            transition: var(--transition);
+        }
+
+        .cta-button:hover {
+            transform: translateY(-5px) scale(1.05);
+            box-shadow: 0 12px 30px rgba(255, 126, 51, 0.4);
+            background-color: var(--primary-color);
+        }
+
+        .cta-button:hover::after {
+            transform: translateX(100%);
+        }
+
+        .footer {
+            background-color: #1a202c;
+            color: #e2e8f0;
+            padding: 4rem 2rem;
+            margin-top: 5rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .footer::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            background: linear-gradient(to right, var(--primary-color), var(--secondary-color), var(--accent-color));
+        }
+
+        .footer p { 
+            margin-bottom: 1.2rem;
+            font-weight: 300;
+        }
+
+        .social-links {
+            display: flex;
+            justify-content: center;
+            gap: 1.2rem;
+            margin-top: 1.5rem;
+        }
+
+        .social-links a {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background-color: rgba(255, 255, 255, 0.1);
+            color: white;
+            transition: var(--transition);
+            font-size: 1.2rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .social-links a::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, rgba(255, 255, 255, 0.1), transparent);
+            transition: var(--transition);
+        }
+
+        .social-links a:hover {
+            background-color: var(--secondary-color);
+            transform: translateY(-5px) rotate(10deg);
+        }
+
+        .social-links a:hover::after {
+            transform: translateX(100%);
+        }
+
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border-width: 0;
+        }
+
+        @media (max-width: 1200px) {
+            .ratings-container {
+                grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            }
+        }
+
+        @media (max-width: 992px) {
+            .overview-content { 
+                grid-template-columns: 1fr; 
+            }
+            .overview-image { 
+                grid-row: 1; 
+                margin-bottom: 2.5rem; 
+            }
+            .content-section {
+                padding: 5rem 2rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .content-section { 
+                padding: 4rem 1.5rem; 
+            }
+            .overview, .info-card { 
+                padding: 2rem; 
+            }
+            .section-title { 
+                font-size: 2.2rem; 
+                margin-bottom: 2.5rem; 
+            }
+            .gallery-card { 
+                width: 300px; 
+                height: 220px; 
+            }
+            .gallery-nav-btn { 
+                width: 45px; 
+                height: 45px; 
+                font-size: 1.1rem; 
+            }
+            .info-grid, .ratings-container {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+            }
+            .cta-section {
+                padding: 3rem 1.5rem;
+            }
+            .features-container .content {
+                flex-direction: column;
+                align-items: center;
+                text-align: center;
+            }
+            .features-container h2 {
+                position: static;
+                margin-bottom: 1.5rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hero-title { 
+                font-size: clamp(2rem, 8vw, 3rem); 
+            }
+            .hero-subtitle {
+                font-size: clamp(1rem, 2.5vw, 1.2rem);
+            }
+            .gallery-card { 
+                width: 260px; 
+                height: 180px; 
+            }
+            .photo-gallery-section { 
+                padding: 4rem 0; 
+            }
+            .section-title {
+                font-size: 1.8rem;
+            }
+            .overview {
+                padding: 1.5rem;
+            }
+            .info-card-header h3 {
+                font-size: 1.3rem;
+            }
+            .cta-button {
+                padding: 1rem 2rem;
+                font-size: 1rem;
+            }
+            .features-container li {
+                font-size: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <button class="theme-toggle" aria-label="Toggle dark mode">
+        <i class="fas fa-moon"></i>
+    </button>
+
+    <section class="hero-container">
+        <img src="<%= destination.images && destination.images.length > 0 ? destination.images[0] : '/images/default.jpg' %>" 
+             alt="<%= destination.name %>" class="hero-image">
+        <div class="hero-overlay">
+            <h1 class="hero-title"><%= destination.name %></h1>
+            <p class="hero-subtitle">Experience the journey of a lifetime in one of the world's most breathtaking destinations</p>
+        </div>
+        <div class="scroll-indicator">
+            <i class="fas fa-chevron-down"></i>
+        </div>
+    </section>
+
+    <section class="content-section">
+        <div class="container">
+            <h2 class="section-title">Discover <%= destination.name %></h2>
+            <div class="overview">
+                <div class="overview-content">
+                    <div class="overview-text">
+                        <h3>Your Perfect Getaway</h3>
+                        <% if (destination.description) { %>
+                            <p><%= destination.description %></p>
+                        <% } else { %>
+                            <p>Immerse yourself in the captivating beauty of <%= destination.name %>, where stunning landscapes meet rich cultural experiences.</p>
+                            <p>Whether you're seeking adventure, relaxation, or cultural enrichment, <%= destination.name %> promises an unforgettable journey.</p>
+                        <% } %>
+                    </div>
+                    <div class="overview-image">
+                        <img src="<%= destination.images && destination.images.length > 1 ? destination.images[1] : (destination.images && destination.images.length > 0 ? destination.images[0] : '/images/default-2.jpg') %>" 
+                             alt="<%= destination.name %> overview">
+                    </div>
+                </div>
+            </div>
+
+            <% if (destination.features && destination.features.length > 0) { %>
+            <div class="features-container">
+                <section class="content fluid">
+                    <h2>
+                        <span aria-hidden="true">Highlights of </span>
+                        <span class="sr-only">Highlights of <%= destination.name %></span>
+                    </h2>
+                    <ul aria-hidden="true" style="--count: <%= destination.features.length %>">
+                        <% destination.features.forEach((feature, index) => { %>
+                            <li style="--i: <%= index %>"><%= feature %>.</li>
+                        <% }) %>
+                    </ul>
+                </section>
+            </div>
+            <% } %>
+        </div>
+    </section>
+
+    <% if (destination.images && destination.images.length > 0) { %>
+    <section class="content-section photo-gallery-section">
+        <h2 class="section-title">Photo Gallery</h2>
+        <div class="horizontal-gallery-container">
+            <div class="horizontal-gallery">
+                <% destination.images.forEach(image => { %>
+                    <div class="gallery-card">
+                        <div class="gallery-card-inner">
+                            <img src="<%= image %>" alt="<%= destination.name %> gallery image">
+                        </div>
+                    </div>
+                <% }) %>
+            </div>
+            <% if (destination.images.length > 1) { %>
+            <div class="gallery-navigation">
+                <button class="gallery-nav-btn prev-btn" aria-label="Previous image"><i class="fas fa-chevron-left"></i></button>
+                <button class="gallery-nav-btn next-btn" aria-label="Next image"><i class="fas fa-chevron-right"></i></button>
+            </div>
+            <% } %>
+        </div>
+    </section>
+    <% } %>
+
+    <section class="content-section ratings-section">
+        <div class="container">
+            <h2 class="section-title">Ratings & Reviews</h2>
+            <div class="ratings-container">
+                <% if (destination.ratings && destination.ratings.length > 0) { %>
+                    <% destination.ratings.forEach(rating => { %>
+                        <div class="rating-card">
+                            <div class="rating-header">
+                                <span class="rating-user"><%= rating.user %></span>
+                                <div class="rating-stars">
+                                    <% for (let i = 1; i <= 5; i++) { %>
+                                        <i class="fas fa-star<%= i <= rating.score ? '' : '-o' %>"></i>
+                                    <% } %>
+                                </div>
+                            </div>
+                            <% if (rating.review) { %>
+                                <p class="rating-review"><%= rating.review %></p>
+                            <% } %>
+                            <% if (rating.reviewImage) { %>
+                                <img src="<%= rating.reviewImage %>" alt="Review Image by <%= rating.user %>" class="rating-image">
+                            <% } %>
+                            <span class="rating-date"><%= new Date(rating.date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) %></span>
+                        </div>
+                    <% }) %>
+                <% } else { %>
+                    <div class="no-ratings">
+                        No reviews yet. Be the first to share your experience!
+                    </div>
+                <% } %>
+            </div>
+        </div>
+    </section>
+
+    <section class="content-section" style="background-color: var(--section-bg);">
+        <div class="container">
+            <h2 class="section-title">Essential Information</h2>
+            
+            <div class="info-grid">
+                <div class="info-card">
+                    <div class="info-card-header">
+                        <h3><i class="fas fa-map-marked-alt"></i> Location Details</h3>
+                    </div>
+                    <div class="info-card-body">
+                        <ul class="info-list">
+                            <% if (destination.region) { %>
+                                <li><i class="fas fa-globe-americas"></i> <strong>Region:</strong> <%= destination.region %></li>
+                            <% } %>
+                            <% if (destination.climate) { %>
+                                <li><i class="fas fa-cloud-sun"></i> <strong>Climate:</strong> <%= destination.climate %></li>
+                            <% } %>
+                            <% if (destination.bestTimeToVisit) { %>
+                                <li><i class="fas fa-calendar-alt"></i> <strong>Best time:</strong> <%= destination.bestTimeToVisit %></li>
+                            <% } %>
+                        </ul>
+                    </div>
+                </div>
+
+                <% if (destination.activities && destination.activities.length > 0) { %>
+                <div class="info-card">
+                    <div class="info-card-header">
+                        <h3><i class="fas fa-hiking"></i> Activities</h3>
+                    </div>
+                    <div class="info-card-body">
+                        <ul class="info-list">
+                            <% destination.activities.forEach(activity => { %>
+                                <li><i class="fas fa-check-circle"></i> <%= activity %></li>
+                            <% }) %>
+                        </ul>
+                    </div>
+                </div>
+                <% } %>
+
+                <div class="info-card">
+                    <div class="info-card-header">
+                        <h3><i class="fas fa-plane-departure"></i> Travel Information</h3>
+                    </div>
+                    <div class="info-card-body">
+                        <ul class="info-list">
+                            <% if (destination.nearestAirport) { %>
+                                <li><i class="fas fa-plane"></i> <strong>Airport:</strong> <%= destination.nearestAirport %></li>
+                            <% } %>
+                            <% if (destination.transportation) { %>
+                                <li><i class="fas fa-bus"></i> <strong>Transport:</strong> <%= destination.transportation %></li>
+                            <% } %>
+                            <% if (destination.accommodation) { %>
+                                <li><i class="fas fa-hotel"></i> <strong>Lodging:</strong> <%= destination.accommodation %></li>
+                            <% } %>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="cta-section">
+                <h3 class="cta-title">Ready for an Adventure?</h3>
+                <p class="cta-text">Book your journey to <%= destination.name %> today and embark on an unforgettable experience.</p>
+                <a href="/booking/booking?destination_name=<%= encodeURIComponent(destination.name) %>" class="cta-button">Book Now</a>
+            </div>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <div class="container">
+            <p>© <%= new Date().getFullYear() %> Unforgettable Journeys. All rights reserved.</p>
+            <p>Experience the magic of <%= destination.name %>.</p>
+            <div class="social-links">
+                <a href="#" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+                <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+                <a href="#" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+                <a href="#" aria-label="Pinterest"><i class="fab fa-pinterest"></i></a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            // Theme Toggle
+            const themeToggle = document.querySelector('.theme-toggle');
+            const body = document.body;
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            body.setAttribute('data-theme', savedTheme);
+            themeToggle.innerHTML = savedTheme === 'dark' ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
+
+            themeToggle.addEventListener('click', () => {
+                const currentTheme = body.getAttribute('data-theme');
+                const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+                body.setAttribute('data-theme', newTheme);
+                localStorage.setItem('theme', newTheme);
+                themeToggle.innerHTML = newTheme === 'dark' ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
+            });
+
+            // Scroll Indicator
+            const scrollIndicator = document.querySelector('.scroll-indicator');
+            const firstSection = document.querySelector('.content-section');
+            if (scrollIndicator && firstSection) {
+                scrollIndicator.addEventListener('click', () => {
+                    window.scrollTo({
+                        top: firstSection.offsetTop,
+                        behavior: 'smooth'
+                    });
+                });
+            }
+
+            // Hero Parallax
+            const heroImage = document.querySelector('.hero-image');
+            const heroTitle = document.querySelector('.hero-title');
+            const heroSubtitle = document.querySelector('.hero-subtitle');
+            if (heroImage && heroTitle) {
+                window.addEventListener('scroll', () => {
+                    const scrollPosition = window.scrollY;
+                    const heroHeight = document.querySelector('.hero-container').offsetHeight;
+                    if (scrollPosition < heroHeight) {
+                        heroImage.style.transform = `scale(${1 + scrollPosition * 0.0004}) translateY(${scrollPosition * 0.08}px)`;
+                        const opacity = 1 - (scrollPosition / (heroHeight * 0.5));
+                        heroTitle.style.opacity = opacity > 0 ? opacity : 0;
+                        if (heroSubtitle) {
+                            heroSubtitle.style.opacity = opacity > 0 ? opacity : 0;
+                        }
+                    }
+                });
+            }
+
+            // Animate on Scroll
+            const animateOnScroll = (entries, observer) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('animate-in');
+                        observer.unobserve(entry.target);
+                    }
+                });
+            };
+
+            const animateItems = document.querySelectorAll('.info-card, .gallery-card, .overview, .rating-card, .cta-section');
+            animateItems.forEach(item => {
+                item.style.opacity = 0;
+                item.style.transform = 'translateY(30px)';
+                item.style.transition = 'opacity 0.8s ease, transform 0.8s ease';
+            });
+
+            const observer = new IntersectionObserver(animateOnScroll, {
+                root: null,
+                threshold: 0.15,
+                rootMargin: '0px 0px -10% 0px'
+            });
+
+            animateItems.forEach(element => {
+                observer.observe(element);
+            });
+
+            document.addEventListener('scroll', () => {
+                animateItems.forEach(element => {
+                    if (element.getBoundingClientRect().top < window.innerHeight * 0.85) {
+                        element.classList.add('animate-in');
+                        element.style.opacity = 1;
+                        element.style.transform = 'translateY(0)';
+                    }
+                });
+            }, { passive: true });
+
+            // Features Scroll Animation
+            const featuresContainer = document.querySelector('.features-container');
+            if (featuresContainer) {
+                document.documentElement.dataset.animate = 'true';
+                
+                if (!CSS.supports('(animation-timeline: scroll()) and (animation-range: 0% 100%)')) {
+                    gsap.registerPlugin(ScrollTrigger);
+                    const featureItems = gsap.utils.toArray('.features-container li');
+                    
+                    gsap.set(featureItems, { opacity: (i) => (i !== 0 ? 0.2 : 1) });
+                    
+                    const featureAnimation = gsap.timeline()
+                        .to(featureItems.slice(1), {
+                            opacity: 1,
+                            stagger: 0.2
+                        })
+                        .to(featureItems.slice(0, -1), {
+                            opacity: 0.2,
+                            stagger: 0.2
+                        }, 0);
+                    
+                    ScrollTrigger.create({
+                        trigger: featureItems[0],
+                        endTrigger: featureItems[featureItems.length - 1],
+                        start: 'top center',
+                        end: 'bottom center',
+                        animation: featureAnimation,
+                        scrub: 0.2
+                    });
+                }
+            }
+
+            // Gallery Navigation
+            const gallery = document.querySelector('.horizontal-gallery');
+            if (gallery) {
+                const prevBtn = document.querySelector('.prev-btn');
+                const nextBtn = document.querySelector('.next-btn');
+                const cardWidth = document.querySelector('.gallery-card')?.offsetWidth || 400;
+                const scrollAmount = cardWidth + 25;
+
+                if (prevBtn && nextBtn) {
+                    nextBtn.addEventListener('click', () => {
+                        gallery.scrollBy({
+                            left: scrollAmount,
+                            behavior: 'smooth'
+                        });
+                    });
+                    
+                    prevBtn.addEventListener('click', () => {
+                        gallery.scrollBy({
+                            left: -scrollAmount,
+                            behavior: 'smooth'
+                        });
+                    });
+
+                    let touchStartX = 0;
+                    let touchEndX = 0;
+                    let isSwiping = false;
+
+                    gallery.addEventListener('touchstart', e => {
+                        touchStartX = e.changedTouches[0].screenX;
+                        isSwiping = true;
+                    }, { passive: true });
+
+                    gallery.addEventListener('touchmove', e => {
+                        if (!isSwiping) return;
+                        e.preventDefault();
+                    }, { passive: false });
+
+                    gallery.addEventListener('touchend', e => {
+                        touchEndX = e.changedTouches[0].screenX;
+                        handleSwipe();
+                        isSwiping = false;
+                    }, { passive: true });
+
+                    function handleSwipe() {
+                        const swipeThreshold = 50;
+                        const swipeDistance = touchEndX - touchStartX;
+                        
+                        if (Math.abs(swipeDistance) > swipeThreshold) {
+                            if (swipeDistance < 0) {
+                                gallery.scrollBy({
+                                    left: scrollAmount,
+                                    behavior: 'smooth'
+                                });
+                            } else {
+                                gallery.scrollBy({
+                                    left: -scrollAmount,
+                                    behavior: 'smooth'
+                                });
+                            }
+                        }
+                    }
+
+                    gallery.addEventListener('scroll', () => {
+                        const scrollPosition = gallery.scrollLeft;
+                        const cards = document.querySelectorAll('.gallery-card');
+                        
+                        cards.forEach((card, index) => {
+                            const cardPos = index * scrollAmount;
+                            const distanceFromCenter = Math.abs(cardPos - scrollPosition);
+                            const maxDistance = window.innerWidth / 2;
+                            
+                            const scale = 1 - Math.min(0.2, (distanceFromCenter / maxDistance) * 0.2);
+                            const rotation = Math.min(8, (1 - distanceFromCenter / maxDistance) * 8);
+                            
+                            if (distanceFromCenter < maxDistance) {
+                                card.querySelector('.gallery-card-inner').style.transform = 
+                                    `rotateY(${rotation}deg) translateZ(${20 * scale}px) scale(${scale})`;
+                                card.style.opacity = 0.5 + scale / 2;
+                            } else {
+                                card.querySelector('.gallery-card-inner').style.transform = 'rotateY(0) translateZ(0)';
+                                card.style.opacity = 0.7;
+                            }
+                        });
+                    });
+                }
+            }
+        });
+    </script>
+</body>
+</html>

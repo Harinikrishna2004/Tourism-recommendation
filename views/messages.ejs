@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= title %></title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body { background-color: #1a202c; color: #ffffff; font-family: Arial, sans-serif; }
+    .tab-btn { background-color: #2d3748; padding: 10px 20px; border-radius: 8px 8px 0 0; cursor: pointer; transition: background-color 0.3s ease; }
+    .tab-btn.active { background-color: #4a5568; }
+    .tab-btn:hover:not(.active) { background-color: #4a5568; }
+    .tab-content { display: none; background-color: #2d3748; padding: 20px; border-radius: 0 8px 8px 8px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); }
+    .tab-content.active { display: block; }
+    .featured-destination { transition: transform 0.3s ease, box-shadow 0.3s ease; }
+    .featured-destination:hover { transform: translateY(-5px) scale(1.02); box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3); }
+  </style>
+</head>
+<body class="bg-gray-900 text-white">
+  <nav class="fixed top-0 left-0 right-0 z-50 bg-gray-900 bg-opacity-80 backdrop-blur-md border-b border-gray-800 p-4">
+    <div class="container mx-auto flex justify-between items-center">
+      <a href="/" class="text-xl font-bold text-white">Travel App</a>
+      <a href="/auth/dashboard" class="bg-blue-500 px-4 py-2 rounded-lg text-white hover:bg-blue-600">Back to Dashboard</a>
+    </div>
+  </nav>
+
+  <section class="p-6 mt-20">
+    <div class="max-w-4xl mx-auto">
+      <h1 class="text-3xl font-bold mb-6 text-center">Messages</h1>
+      <p class="text-center mb-4">Logged in as: <strong><%= currentUser %></strong></p>
+      <% if (error) { %>
+        <p class="text-center text-red-500"><%= error %></p>
+      <% } %>
+      <div class="text-center mb-4">
+        <p>Sent Messages Count: <%= sentMessages ? sentMessages.length : 0 %></p>
+        <p>Received Messages Count: <%= receivedMessages ? receivedMessages.length : 0 %></p>
+      </div>
+      
+      <div class="flex justify-center mb-4">
+        <button class="tab-btn active" onclick="showTab('sent')">Sent</button>
+        <button class="tab-btn" onclick="showTab('received')">Received</button>
+      </div>
+
+      <!-- Sent Messages -->
+      <div id="sent" class="tab-content active">
+        <section class="p-6">
+          <h2 class="text-xl font-bold mb-4 text-center">Sent Messages</h2>
+          <div id="sentMessages" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <% if (sentMessages && sentMessages.length > 0) { %>
+              <% sentMessages.forEach(msg => { %>
+                <div class="bg-gray-800 p-4 rounded-lg shadow-lg featured-destination relative">
+                  <button class="favorite-btn absolute top-2 right-2 p-2" 
+                          data-id="<%= msg.destinationId._id %>" 
+                          data-favorited="<%= msg.destinationId.isFavorited ? 'true' : 'false' %>">
+                    <svg class="w-6 h-6 transition-colors <%= msg.destinationId.isFavorited ? 'text-red-500' : 'text-gray-400 hover:text-red-500' %>" 
+                         fill="<%= msg.destinationId.isFavorited ? 'currentColor' : 'none' %>" 
+                         stroke="currentColor" 
+                         viewBox="0 0 24 24" 
+                         xmlns="http://www.w3.org/2000/svg">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                            d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
+                    </svg>
+                  </button>
+                  <img src="<%= msg.destinationId.image || (msg.destinationId.images && msg.destinationId.images.length > 0 ? msg.destinationId.images[0] : '/default-image.jpg') %>" 
+                       alt="<%= msg.destinationId.name || 'Unknown Destination' %>" 
+                       class="w-full h-48 object-cover rounded-lg" loading="lazy">
+                  <h3 class="text-lg font-bold mt-2 text-white"><%= msg.destinationId.name || 'Unnamed' %></h3>
+                  <p class="text-sm text-gray-300"><%= msg.destinationId.description || 'No description available' %></p>
+                  <p class="text-sm text-gray-400 mt-1">Sent to: <strong><%= msg.receiverName %></strong></p>
+                  <a href="/destinations/<%= msg.destinationId._id %>" 
+                     class="mt-2 inline-block bg-blue-500 px-4 py-2 rounded-lg text-white">View Details</a>
+                  <a href="/friends?dest_id=<%= msg.destinationId._id %>&dest_name=<%= encodeURIComponent(msg.destinationId.name || 'Unnamed') %>" 
+                     class="mt-2 inline-block bg-blue-500 px-4 py-2 rounded-lg text-white">Share</a>
+                </div>
+              <% }) %>
+            <% } else { %>
+              <p class="text-center text-white col-span-3">No messages sent yet.</p>
+            <% } %>
+          </div>
+        </section>
+      </div>
+
+      <!-- Received Messages -->
+      <div id="received" class="tab-content">
+        <section class="p-6">
+          <h2 class="text-xl font-bold mb-4 text-center">Received Messages</h2>
+          <div id="receivedMessages" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <% if (receivedMessages && receivedMessages.length > 0) { %>
+              <% receivedMessages.forEach(msg => { %>
+                <div class="bg-gray-800 p-4 rounded-lg shadow-lg featured-destination relative">
+                  <button class="favorite-btn absolute top-2 right-2 p-2" 
+                          data-id="<%= msg.destinationId._id %>" 
+                          data-favorited="<%= msg.destinationId.isFavorited ? 'true' : 'false' %>">
+                    <svg class="w-6 h-6 transition-colors <%= msg.destinationId.isFavorited ? 'text-red-500' : 'text-gray-400 hover:text-red-500' %>" 
+                         fill="<%= msg.destinationId.isFavorited ? 'currentColor' : 'none' %>" 
+                         stroke="currentColor" 
+                         viewBox="0 0 24 24" 
+                         xmlns="http://www.w3.org/2000/svg">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                            d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
+                    </svg>
+                  </button>
+                  <img src="<%= msg.destinationId.image || (msg.destinationId.images && msg.destinationId.images.length > 0 ? msg.destinationId.images[0] : '/default-image.jpg') %>" 
+                       alt="<%= msg.destinationId.name || 'Unknown Destination' %>" 
+                       class="w-full h-48 object-cover rounded-lg" loading="lazy">
+                  <h3 class="text-lg font-bold mt-2 text-white"><%= msg.destinationId.name || 'Unnamed' %></h3>
+                  <p class="text-sm text-gray-300"><%= msg.destinationId.description || 'No description available' %></p>
+                  <p class="text-sm text-gray-400 mt-1">Received from: <strong><%= msg.senderName %></strong></p>
+                  <a href="/destinations/<%= msg.destinationId._id %>" 
+                     class="mt-2 inline-block bg-blue-500 px-4 py-2 rounded-lg text-white">View Details</a>
+                  <a href="/friends?dest_id=<%= msg.destinationId._id %>&dest_name=<%= encodeURIComponent(msg.destinationId.name || 'Unnamed') %>" 
+                     class="mt-2 inline-block bg-blue-500 px-4 py-2 rounded-lg text-white">Share</a>
+                </div>
+              <% }) %>
+            <% } else { %>
+              <p class="text-center text-white col-span-3">No messages received yet.</p>
+            <% } %>
+          </div>
+        </section>
+      </div>
+    </div>
+  </section>
+
+  <script>
+    function showTab(tabId) {
+      document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+      document.querySelector(`button[onclick="showTab('${tabId}')"]`).classList.add('active');
+      document.getElementById(tabId).classList.add('active');
+    }
+  </script>
+</body>
+</html>

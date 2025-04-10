@@ -1,0 +1,2422 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Visited Places | Tourism App</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/smooth-scrollbar/8.6.3/smooth-scrollbar.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/smooth-scrollbar/8.6.3/plugins/overscroll.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Modern Color Scheme and Variables */
+        :root {
+            --primary-color: #3b82f6;
+            --primary-dark: #2563eb;
+            --primary-light: #93c5fd;
+            --secondary-color: #ec4899;
+            --secondary-dark: #db2777;
+            --secondary-light: #fbcfe8;
+            --gradient-start: #2563eb;
+            --gradient-end: #ec4899;
+            --accent-color: #f97316;
+            --text-light: #f8fafc;
+            --text-dark: #0f172a;
+            --text-muted: #64748b;
+            --card-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+            --container-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            --background-light: #f8fafc;
+            --background-light-accent: #f1f5f9;
+            --background-dark: #0f172a;
+            --background-dark-accent: #1e293b;
+            --background-card-light: #ffffff;
+            --background-card-dark: #1e293b;
+            --navbar-background-light: rgba(255, 255, 255, 0.8);
+            --navbar-background-dark: rgba(30, 41, 59, 0.8);
+            --dropdown-background-light: #ffffff;
+            --dropdown-background-dark: #1e293b;
+            --dropdown-text-light: var(--text-dark);
+            --dropdown-text-dark: var(--text-light);
+            --border-light: #e2e8f0;
+            --border-dark: #334155;
+            --transition-fast: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            --transition-normal: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --transition-bounce: all 0.5s cubic-bezier(0.68, -0.6, 0.32, 1.6);
+        }
+
+        /* Base Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            position: relative;
+            overflow-x: hidden !important;
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            font-size: 16px;
+            background: var(--background-light);
+            color: var(--text-dark);
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            line-height: 1.6;
+            transition: var(--transition-normal);
+        }
+
+        a, a:hover {
+            text-decoration: none;
+            transition: var(--transition-normal);
+        }
+
+        /* Improved Dark Theme Styles */
+        body.dark {
+            background-color: var(--background-dark);
+            color: var(--text-light);
+        }
+
+        body.dark .navbar-fixed {
+            background: var(--navbar-background-dark);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        body.dark #dropdown-menu {
+            background-color: var(--dropdown-background-dark);
+            color: var(--dropdown-text-dark);
+            border: 1px solid var(--border-dark);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+        }
+
+        body.dark .dropdown-item {
+            color: var(--dropdown-text-dark);
+        }
+
+        body.dark .dropdown-item:hover {
+            background-color: rgba(255, 255, 255, 0.05);
+        }
+
+        body.dark .dropdown-divider {
+            border-color: var(--border-dark);
+        }
+
+        body.dark .place-card {
+            background: var(--background-card-dark);
+            border: 1px solid var(--border-dark);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.2), 0 4px 6px -2px rgba(0, 0, 0, 0.1);
+        }
+
+        body.dark .place-card-title {
+            color: var(--text-light);
+        }
+
+        body.dark .place-card-desc {
+            color: var(--text-muted);
+        }
+
+        body.dark .review-textarea {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: var(--border-dark);
+            color: var(--text-light);
+        }
+
+        body.dark .existing-review {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: var(--border-dark);
+        }
+
+        body.dark .navbar-brand {
+            color: var(--text-light);
+        }
+
+        body.dark #theme-toggle {
+            color: var(--text-light);
+        }
+
+        /* Enhanced Navbar styles */
+        .navbar-fixed {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: var(--navbar-background-light);
+            backdrop-filter: blur(10px);
+            padding: 15px 0;
+            z-index: 1000;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            transition: var(--transition-normal);
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .mx-auto {
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .flex {
+            display: flex;
+        }
+
+        .justify-between {
+            justify-content: space-between;
+        }
+
+        .items-center {
+            align-items: center;
+        }
+
+        .navbar-brand {
+            color: var(--primary-color);
+            font-size: 1.5rem;
+            font-weight: 700;
+            transition: var(--transition-normal);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            position: relative;
+        }
+
+        .navbar-brand:before {
+            content: '\f060';
+            font-family: 'Font Awesome 5 Free';
+            font-weight: 900;
+            font-size: 0.9rem;
+            opacity: 0;
+            position: absolute;
+            left: -20px;
+            transition: var(--transition-normal);
+        }
+
+        .navbar-brand:hover:before {
+            opacity: 1;
+            left: -15px;
+        }
+
+        .navbar-brand:hover {
+            color: var(--secondary-color);
+            transform: translateX(5px);
+        }
+
+        .relative {
+            position: relative;
+        }
+
+        /* Improved theme toggle */
+        #theme-toggle {
+            background: none;
+            border: none;
+            color: var(--text-dark);
+            font-size: 1.2rem;
+            cursor: pointer;
+            padding: 10px;
+            border-radius: 50%;
+            transition: var(--transition-normal);
+            margin-right: 16px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        #theme-toggle:after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            background: rgba(99, 102, 241, 0.1);
+            border-radius: 50%;
+            transform: scale(0);
+            transition: var(--transition-fast);
+        }
+
+        #theme-toggle:hover:after {
+            transform: scale(1);
+        }
+
+        #theme-toggle:hover {
+            transform: rotate(15deg);
+            color: var(--primary-color);
+        }
+
+        #profile-btn {
+            cursor: pointer;
+            background: none;
+            border: none;
+            padding: 5px;
+            border-radius: 50%;
+            transition: var(--transition-normal);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        #profile-btn:after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            background: rgba(99, 102, 241, 0.1);
+            border-radius: 50%;
+            transform: scale(0);
+            transition: var(--transition-fast);
+        }
+
+        #profile-btn:hover:after {
+            transform: scale(1);
+        }
+
+        #profile-btn:hover {
+            transform: scale(1.05);
+        }
+
+        #profile-btn img {
+            border: 2px solid transparent;
+            transition: var(--transition-normal);
+        }
+
+        #profile-btn:hover img {
+            border-color: var(--primary-color);
+        }
+
+        .w-10 {
+            width: 2.5rem;
+        }
+
+        .h-10 {
+            height: 2.5rem;
+        }
+
+        .rounded-full {
+            border-radius: 9999px;
+        }
+
+        /* Enhanced dropdown */
+        #dropdown-menu {
+            position: absolute;
+            right: 0;
+            top: 100%;
+            background-color: var(--dropdown-background-light);
+            color: var(--dropdown-text-light);
+            border-radius: 16px;
+            box-shadow: var(--card-shadow);
+            transition: var(--transition-bounce);
+            z-index: 1000;
+            width: 240px;
+            margin-top: 15px;
+            border: 1px solid var(--border-light);
+            transform-origin: top right;
+            transform: scale(0.9);
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+        }
+
+        #dropdown-menu.visible {
+            transform: scale(1);
+            opacity: 1;
+            visibility: visible;
+            pointer-events: auto;
+        }
+
+        #dropdown-menu:before {
+            content: '';
+            position: absolute;
+            top: -8px;
+            right: 20px;
+            width: 16px;
+            height: 16px;
+            background: var(--dropdown-background-light);
+            transform: rotate(45deg);
+            border-top: 1px solid var(--border-light);
+            border-left: 1px solid var(--border-light);
+        }
+
+        body.dark #dropdown-menu:before {
+            background: var(--dropdown-background-dark);
+            border-top: 1px solid var(--border-dark);
+            border-left: 1px solid var(--border-dark);
+        }
+
+        .py-2 {
+            padding-top: 0.5rem;
+            padding-bottom: 0.5rem;
+        }
+
+        .dropdown-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 0.85rem 1.25rem;
+            color: var(--text-dark);
+            font-weight: 500;
+            transition: var(--transition-normal);
+            opacity: 0;
+            transform: translateY(10px);
+            animation: fadeIn 0.3s forwards;
+            animation-delay: calc(var(--item-index) * 0.05s);
+            text-align: left;
+            border-radius: 8px;
+            margin: 0 5px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .dropdown-item:before {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            background: rgba(99, 102, 241, 0.1);
+            transform: translateX(-100%);
+            transition: var(--transition-normal);
+        }
+
+        .dropdown-item:hover:before {
+            transform: translateX(0);
+        }
+
+        .dropdown-item:hover {
+            color: var(--primary-color);
+        }
+
+        .dropdown-item i {
+            width: 20px;
+            text-align: center;
+            font-size: 1.1rem;
+        }
+
+        .dropdown-item.danger {
+            color: var(--secondary-color);
+        }
+
+        .dropdown-item.danger:hover:before {
+            background: rgba(244, 63, 94, 0.1);
+        }
+
+        .dropdown-divider {
+            height: 1px;
+            background-color: var(--border-light);
+            margin: 8px 0;
+        }
+
+        /* Improved Page header styles */
+        .page-header {
+            text-align: center;
+            padding: 150px 0 80px;
+            background: linear-gradient(135deg, var(--gradient-start) 0%, var(--gradient-end) 100%);
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .page-header h1 {
+            font-size: 3.8rem;
+            font-weight: 800;
+            margin-bottom: 1.5rem;
+            position: relative;
+            z-index: 2;
+            letter-spacing: -1px;
+            background: linear-gradient(to right, #ffffff, #f0f0f0);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            animation: headerFadeIn 1s ease-out;
+        }
+
+        .page-header p {
+            font-size: 1.25rem;
+            max-width: 600px;
+            margin: 0 auto;
+            opacity: 0;
+            position: relative;
+            z-index: 2;
+            font-weight: 400;
+            animation: headerFadeIn 1s ease-out forwards;
+            animation-delay: 0.3s;
+        }
+
+        @keyframes headerFadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .page-header::before {
+            content: '';
+            position: absolute;
+            top: -150px;
+            right: -150px;
+            width: 400px;
+            height: 400px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.1);
+            z-index: 1;
+        }
+
+        .page-header::after {
+            content: '';
+            position: absolute;
+            bottom: -150px;
+            left: -150px;
+            width: 400px;
+            height: 400px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.1);
+            z-index: 1;
+        }
+
+        .header-shapes {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            z-index: 1;
+        }
+
+        .header-shape {
+            position: absolute;
+            background: rgba(255,255,255,0.1);
+            border-radius: 50%;
+        }
+
+        .shape-1 {
+            width: 100px;
+            height: 100px;
+            top: 20%;
+            left: 10%;
+            animation: float 8s infinite ease-in-out;
+        }
+
+        .shape-2 {
+            width: 80px;
+            height: 80px;
+            top: 60%;
+            left: 15%;
+            animation: float 9s infinite ease-in-out;
+            animation-delay: 1s;
+        }
+
+        .shape-3 {
+            width: 60px;
+            height: 60px;
+            top: 30%;
+            right: 20%;
+            animation: float 7s infinite ease-in-out;
+            animation-delay: 2s;
+        }
+
+        .shape-4 {
+            width: 120px;
+            height: 120px;
+            bottom: 20%;
+            right: 10%;
+            animation: float 10s infinite ease-in-out;
+            animation-delay: 0.5s;
+        }
+
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0) rotate(0deg);
+            }
+            50% {
+                transform: translateY(-30px) rotate(10deg);
+            }
+        }
+
+        /* Enhanced Visited Places Styles */
+        .visited-container {
+            min-height: calc(100vh - 300px);
+            padding: 80px 20px;
+            background: linear-gradient(to bottom, var(--background-light), var(--background-light-accent));
+            transition: var(--transition-normal);
+            position: relative;
+        }
+
+        body.dark .visited-container {
+            background: linear-gradient(to bottom, var(--background-dark), var(--background-dark-accent));
+        }
+
+        .visited-container:before {
+            content: '';
+            position: absolute;
+            top: -50px;
+            left: 0;
+            right: 0;
+            height: 100px;
+            background: linear-gradient(to bottom, rgba(255,255,255,0), var(--background-light));
+            z-index: 2;
+        }
+
+        body.dark .visited-container:before {
+            background: linear-gradient(to bottom, rgba(0,0,0,0), var(--background-dark));
+        }
+
+        .visited-grid {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 40px;
+            padding: 20px 0;
+        }
+
+        /* Enhanced place cards */
+        .place-card {
+            background: var(--background-card-light);
+            border-radius: 20px;
+            overflow: hidden;
+            transition: var(--transition-bounce);
+            position: relative;
+            box-shadow: var(--card-shadow);
+            border: 1px solid var(--border-light);
+            transform: translateY(0);
+        }
+
+        .place-card:hover {
+            transform: translateY(-15px);
+            box-shadow: 0 25px 30px -15px rgba(0, 0, 0, 0.15);
+        }
+
+        .place-card-image-container {
+            position: relative;
+            width: 100%;
+            height: 240px;
+            overflow: hidden;
+        }
+
+        .place-card-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: var(--transition-normal);
+        }
+
+        .place-card:hover .place-card-image {
+            transform: scale(1.08);
+        }
+
+        .place-card-content {
+            padding: 28px;
+            position: relative;
+        }
+
+        .place-card-title {
+            font-size: 1.65rem;
+            font-weight: 700;
+            color: var(--text-dark);
+            margin-bottom: 12px;
+            line-height: 1.2;
+            transition: var(--transition-normal);
+        }
+
+        .place-card:hover .place-card-title {
+            color: var(--primary-color);
+        }
+
+        .place-card-desc {
+            font-size: 1rem;
+            color: var(--text-muted);
+            margin-bottom: 24px;
+            line-height: 1.7;
+            display: -webkit-box;
+            -webkit-box-orient: vertical;
+            -webkit-line-clamp: 3;
+            overflow: hidden;
+        }
+
+        .place-card-actions {
+            display: flex;
+            gap: 12px;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .place-card-btn {
+            padding: 12px 22px;
+            border-radius: 30px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            transition: var(--transition-normal);
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-details {
+            background: var(--primary-color);
+            color: white;
+            box-shadow: 0 5px 15px rgba(59, 130, 246, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-details:before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to right, rgba(255,255,255,0), rgba(255,255,255,0.2), rgba(255,255,255,0));
+            transform: translateX(-100%);
+            transition: var(--transition-normal);
+        }
+
+        .btn-details:hover:before {
+            transform: translateX(100%);
+        }
+
+        .btn-details:hover {
+            background: var(--primary-dark);
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(59, 130, 246, 0.4);
+        }
+
+        .btn-favorite {
+            background: transparent;
+            color: var(--text-muted);
+            border: 2px solid var(--border-light);
+            cursor: pointer;
+            width: 45px;
+            height: 45px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+            border-radius: 50%;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-favorite:before {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: rgba(244, 63, 94, 0.1);
+            border-radius: 50%;
+            transform: scale(0);
+            transition: transform 0.3s ease;
+        }
+
+        .btn-favorite:hover:before {
+            transform: scale(1);
+        }
+
+        .btn-favorite:hover {
+            color: var(--secondary-color);
+            border-color: var(--secondary-color);
+            transform: scale(1.1);
+        }
+
+        .btn-favorite.active {
+            background: var(--secondary-color);
+            color: white;
+            border-color: var(--secondary-color);
+        }
+
+        .btn-favorite.active:hover {
+            background: var(--secondary-dark);
+            transform: scale(1.1);
+        }
+
+        .btn-favorite i {
+            position: relative;
+            z-index: 2;
+        }
+
+        /* Enhanced Rating and Review Styles */
+        .rating-section {
+            margin-top: 24px;
+            padding-top: 24px;
+            border-top: 1px solid var(--border-light);
+        }
+
+        body.dark .rating-section {
+            border-top: 1px solid var(--border-dark);
+        }
+
+        .rating-stars {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        .rating-star {
+            font-size: 1.3rem;
+            color: #d1d5db;
+            cursor: pointer;
+            transition: transform 0.2s ease, color 0.2s ease;
+        }
+
+        .rating-star:hover {
+            transform: scale(1.3);
+        }
+
+        .rating-star.filled {
+            color: #f59e0b; /* Amber color for filled stars */
+        }
+
+        .review-textarea {
+            width: 100%;
+            min-height: 100px;
+            padding: 16px;
+            border-radius: 16px;
+            border: 1px solid var(--border-light);
+            background: var(--background-light);
+            color: var(--text-dark);
+            font-size: 1rem;
+            font-family: 'Outfit', sans-serif;
+            resize: vertical;
+            margin-bottom: 16px;
+            transition: var(--transition-normal);
+        }
+
+        .review-textarea:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+        }
+
+        .image-upload-section {
+            margin-bottom: 18px;
+        }
+
+        .image-upload-section label {
+            display: block;
+            margin-bottom: 10px;
+            font-size: 0.95rem;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        .review-image-input {
+            width: 100%;
+            padding: 10px 0;
+            font-size: 0.95rem;
+            color: var(--text-muted);
+            font-family: 'Outfit', sans-serif;
+        }
+
+        .submit-review-btn {
+            background: var(--primary-color);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 30px;
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: var(--transition-normal);
+            box-shadow: 0 4px 10px rgba(59, 130, 246, 0.25);
+            font-family: 'Outfit', sans-serif;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .submit-review-btn:before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to right, rgba(255,255,255,0), rgba(255,255,255,0.2), rgba(255,255,255,0));
+            transform: translateX(-100%);
+            transition: var(--transition-normal);
+        }
+
+        .submit-review-btn:hover:before {
+            transform: translateX(100%);
+        }
+
+        .submit-review-btn:hover {
+            background: var(--primary-dark);
+            transform: translateY(-3px);
+            box-shadow: 0 6px 15px rgba(59, 130, 246, 0.35);
+        }
+
+        .existing-review {
+            margin-top: 24px;
+            padding: 20px;
+            background: var(--background-light-accent);
+            border-radius: 16px;
+            border: 1px solid var(--border-light);
+            transition: var(--transition-normal);
+        }
+
+        body.dark .existing-review {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .existing-rating {
+            margin-bottom: 12px;
+            display: flex;
+            gap: 5px;
+        }
+
+        .existing-rating .fas.fa-star.filled {
+            color: #f59e0b;
+        }
+
+        .existing-review-text {
+            font-size: 1rem;
+            color: var(--text-muted);
+            line-height: 1.7;
+        }
+
+        .existing-review-image {
+            max-width: 100%;
+            height: auto;
+            margin-top: 16px;
+            border-radius: 12px;
+            transition: var(--transition-normal);
+            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .existing-review-image:hover {
+            transform: scale(1.02);
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.15);
+        }
+
+        /* Enhanced empty state */
+        .empty-card {
+            grid-column: 1 / -1;
+            background: var(--background-card-light);
+            border-radius: 24px;
+            padding: 80px 40px;
+            text-align: center;
+            box-shadow: var(--card-shadow);
+            border: 1px solid var(--border-light);
+            transition: var(--transition-normal);
+            transform: translateY(0);
+        }
+
+        .empty-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 25px 30px -15px rgba(0, 0, 0, 0.15);
+        }
+
+        body.dark .empty-card {
+            background: var(--background-card-dark);
+            border: 1px solid var(--border-dark);
+        }
+
+        .empty-card i {
+            font-size: 5rem;
+            color: var(--primary-color);
+            margin-bottom: 30px;
+            opacity: 0.8;
+            animation: pulse 3s infinite ease-in-out;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+                opacity: 0.8;
+            }
+            50% {
+                transform: scale(1.1);
+                opacity: 1;
+            }
+        }
+
+        /* Continuing from where the file left off */
+.empty-card h3 {
+    font-size: 2.2rem;
+    font-weight: 700;
+    margin-bottom: 20px;
+    color: var(--text-dark);
+    background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+body.dark .empty-card h3 {
+    color: var(--text-light);
+}
+
+.empty-card p {
+    font-size: 1.2rem;
+    color: var(--text-muted);
+    max-width: 600px;
+    margin: 0 auto 30px;
+    line-height: 1.7;
+}
+
+.empty-card-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+    color: white;
+    padding: 16px 32px;
+    border-radius: 50px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    transition: var(--transition-bounce);
+    box-shadow: 0 10px 25px rgba(59, 130, 246, 0.3);
+    border: none;
+    cursor: pointer;
+    text-decoration: none;
+    position: relative;
+    overflow: hidden;
+}
+
+.empty-card-btn:before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(to right, rgba(255,255,255,0), rgba(255,255,255,0.2), rgba(255,255,255,0));
+    transform: translateX(-100%);
+    transition: var(--transition-normal);
+}
+
+.empty-card-btn:hover:before {
+    transform: translateX(100%);
+}
+
+.empty-card-btn:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 30px rgba(59, 130, 246, 0.4);
+}
+
+/* Modern footer styles */
+.footer {
+    padding: 60px 0 30px;
+    background: var(--background-light-accent);
+    transition: var(--transition-normal);
+    border-top: 1px solid var(--border-light);
+    position: relative;
+}
+
+body.dark .footer {
+    background: var(--background-dark-accent);
+    border-top: 1px solid var(--border-dark);
+}
+
+.footer-content {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+.footer-brand {
+    flex: 0 0 280px;
+    margin-bottom: 40px;
+}
+
+.footer-brand h3 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--primary-color);
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.footer-brand p {
+    font-size: 1rem;
+    color: var(--text-muted);
+    line-height: 1.7;
+    margin-bottom: 20px;
+}
+
+.footer-social {
+    display: flex;
+    gap: 16px;
+}
+
+.social-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--background-light);
+    color: var(--primary-color);
+    font-size: 1.1rem;
+    transition: var(--transition-normal);
+    border: 1px solid var(--border-light);
+    position: relative;
+    overflow: hidden;
+}
+
+body.dark .social-icon {
+    background: var(--background-dark);
+    border: 1px solid var(--border-dark);
+}
+
+.social-icon:before {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: var(--primary-color);
+    top: 0;
+    left: 0;
+    transform: translateY(100%);
+    transition: var(--transition-normal);
+    z-index: 0;
+}
+
+.social-icon:hover:before {
+    transform: translateY(0);
+}
+
+.social-icon i {
+    position: relative;
+    z-index: 1;
+    transition: var(--transition-normal);
+}
+
+.social-icon:hover i {
+    color: white;
+}
+
+.footer-links {
+    flex: 0 0 160px;
+    margin-bottom: 40px;
+}
+
+.footer-links h4 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--text-dark);
+    margin-bottom: 20px;
+    position: relative;
+    padding-bottom: 10px;
+}
+
+body.dark .footer-links h4 {
+    color: var(--text-light);
+}
+
+.footer-links h4:after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 40px;
+    height: 2px;
+    background: var(--primary-color);
+}
+
+.footer-links ul {
+    list-style: none;
+    padding: 0;
+}
+
+.footer-links li {
+    margin-bottom: 12px;
+}
+
+.footer-links a {
+    color: var(--text-muted);
+    font-size: 0.95rem;
+    transition: var(--transition-normal);
+    position: relative;
+    display: inline-block;
+    padding-left: 15px;
+}
+
+.footer-links a:before {
+    content: '\f105';
+    font-family: 'Font Awesome 5 Free';
+    font-weight: 900;
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--primary-color);
+    opacity: 0;
+    transition: var(--transition-normal);
+}
+
+.footer-links a:hover {
+    color: var(--primary-color);
+    padding-left: 20px;
+}
+
+.footer-links a:hover:before {
+    opacity: 1;
+}
+
+.footer-newsletter {
+    flex: 0 0 340px;
+    margin-bottom: 40px;
+}
+
+.footer-newsletter h4 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--text-dark);
+    margin-bottom: 20px;
+    position: relative;
+    padding-bottom: 10px;
+}
+
+body.dark .footer-newsletter h4 {
+    color: var(--text-light);
+}
+
+.footer-newsletter h4:after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 40px;
+    height: 2px;
+    background: var(--primary-color);
+}
+
+.footer-newsletter p {
+    font-size: 0.95rem;
+    color: var(--text-muted);
+    line-height: 1.7;
+    margin-bottom: 20px;
+}
+
+.newsletter-form {
+    display: flex;
+    position: relative;
+}
+
+.newsletter-input {
+    flex: 1;
+    height: 50px;
+    padding: 0 20px;
+    border-radius: 25px;
+    border: 1px solid var(--border-light);
+    background: var(--background-light);
+    color: var(--text-dark);
+    font-size: 0.95rem;
+    font-family: 'Outfit', sans-serif;
+    transition: var(--transition-normal);
+    padding-right: 60px;
+}
+
+body.dark .newsletter-input {
+    background: var(--background-dark);
+    border: 1px solid var(--border-dark);
+    color: var(--text-light);
+}
+
+.newsletter-input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+}
+
+.newsletter-btn {
+    position: absolute;
+    right: 5px;
+    top: 5px;
+    height: 40px;
+    width: 40px;
+    border-radius: 50%;
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: var(--transition-normal);
+    overflow: hidden;
+}
+
+.newsletter-btn:before {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: rgba(255,255,255,0.2);
+    top: 0;
+    left: 0;
+    transform: translateX(-100%);
+    transition: var(--transition-normal);
+}
+
+.newsletter-btn:hover:before {
+    transform: translateX(100%);
+}
+
+.newsletter-btn:hover {
+    background: var(--primary-dark);
+}
+
+.footer-bottom {
+    padding-top: 30px;
+    text-align: center;
+    border-top: 1px solid var(--border-light);
+    margin-top: 20px;
+    max-width: 1200px;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: 20px;
+    padding-right: 20px;
+}
+
+body.dark .footer-bottom {
+    border-top: 1px solid var(--border-dark);
+}
+
+.footer-bottom p {
+    font-size: 0.95rem;
+    color: var(--text-muted);
+}
+
+.footer-bottom a {
+    color: var(--primary-color);
+    font-weight: 500;
+    transition: var(--transition-normal);
+}
+
+.footer-bottom a:hover {
+    color: var(--secondary-color);
+}
+
+/* Enhanced animation effects */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Enhanced Responsive Styles */
+@media (max-width: 1200px) {
+    .visited-grid {
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 30px;
+    }
+
+    .page-header h1 {
+        font-size: 3.2rem;
+    }
+
+    .page-header p {
+        font-size: 1.1rem;
+    }
+}
+
+@media (max-width: 991px) {
+    .footer-content {
+        justify-content: flex-start;
+    }
+
+    .footer-brand {
+        flex: 0 0 100%;
+        max-width: 400px;
+    }
+
+    .footer-links {
+        flex: 0 0 33.333%;
+    }
+
+    .footer-newsletter {
+        flex: 0 0 100%;
+        max-width: 500px;
+    }
+}
+
+@media (max-width: 768px) {
+    .visited-grid {
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 25px;
+    }
+
+    .page-header {
+        padding: 120px 0 60px;
+    }
+    
+    .page-header h1 {
+        font-size: 2.8rem;
+    }
+
+    .page-header p {
+        font-size: 1rem;
+        max-width: 500px;
+    }
+    
+    .footer-links {
+        flex: 0 0 50%;
+    }
+}
+
+@media (max-width: 576px) {
+    .visited-grid {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+
+    .navbar-brand {
+        font-size: 1.3rem;
+    }
+
+    .page-header h1 {
+        font-size: 2.4rem;
+    }
+
+    .page-header p {
+        font-size: 0.95rem;
+    }
+
+    .footer-content {
+        flex-direction: column;
+    }
+
+    .footer-links {
+        flex: 0 0 100%;
+    }
+
+    .place-card-actions {
+        flex-direction: column;
+    }
+
+    .btn-details {
+        width: 100%;
+        text-align: center;
+        justify-content: center;
+        margin-bottom: 10px;
+    }
+    
+    .btn-favorite {
+        align-self: flex-end;
+    }
+}
+
+/* Add smooth scrolling */
+html {
+    scroll-behavior: smooth;
+}
+
+/* Additional transitions and animations for better UX */
+.page-transition {
+    transition: opacity 0.3s ease-in-out;
+}
+
+/* New modern card hover effect */
+.place-card::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(to bottom right, rgba(59, 130, 246, 0.1), rgba(236, 72, 153, 0.1));
+    border-radius: 20px;
+    opacity: 0;
+    transition: var(--transition-normal);
+    pointer-events: none;
+}
+
+.place-card:hover::after {
+    opacity: 1;
+}
+
+/* Enhanced accessibility styles */
+:focus {
+    outline: 2px dashed var(--primary-color);
+    outline-offset: 3px;
+}
+
+/* Add glass morphism effect to certain elements */
+.glass-effect {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+body.dark .glass-effect {
+    background: rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* Add better focus states for inputs and buttons */
+input:focus,
+textarea:focus,
+button:focus,
+select:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: rgba(100, 116, 139, 0.1);
+}
+
+::-webkit-scrollbar-thumb {
+    background: rgba(100, 116, 139, 0.25);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: rgba(59, 130, 246, 0.5);
+}
+
+body.dark ::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+body.dark ::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.15);
+}
+
+body.dark ::-webkit-scrollbar-thumb:hover {
+    background: rgba(59, 130, 246, 0.5);
+}
+
+/* Image hover effects with gentle zoom */
+.hover-zoom {
+    overflow: hidden;
+}
+
+.hover-zoom img {
+    transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.hover-zoom:hover img {
+    transform: scale(1.08);
+}
+
+/* Custom selection styling */
+::selection {
+    background: var(--primary-light);
+    color: var(--text-dark);
+}
+
+body.dark ::selection {
+    background: var(--primary-dark);
+    color: var(--text-light);
+}
+
+/* Add subtle animations to elements when they come into view */
+.animate-on-scroll {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.8s ease, transform 0.8s ease;
+}
+
+.animate-on-scroll.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Loading animation */
+.loading-spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid rgba(59, 130, 246, 0.2);
+    border-top-color: var(--primary-color);
+    border-radius: 50%;
+    animation: spinner 1s linear infinite;
+}
+
+@keyframes spinner {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Better button states */
+button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* Custom tooltip styling */
+.tooltip {
+    position: relative;
+}
+
+.tooltip:after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: 125%;
+    left: 50%;
+    transform: translateX(-50%) scale(0.8);
+    background: var(--background-dark);
+    color: var(--text-light);
+    font-size: 0.8rem;
+    padding: 8px 12px;
+    border-radius: 8px;
+    white-space: nowrap;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.2s ease;
+    pointer-events: none;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+}
+
+.tooltip:before {
+    content: '';
+    position: absolute;
+    bottom: 113%;
+    left: 50%;
+    transform: translateX(-50%) scale(0.8);
+    border-width: 6px;
+    border-style: solid;
+    border-color: var(--background-dark) transparent transparent transparent;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.2s ease;
+    pointer-events: none;
+    z-index: 1000;
+}
+
+.tooltip:hover:after,
+.tooltip:hover:before {
+    opacity: 1;
+    visibility: visible;
+    transform: translateX(-50%) scale(1);
+}
+
+body.dark .tooltip:after {
+    background: var(--background-light);
+    color: var(--text-dark);
+}
+
+body.dark .tooltip:before {
+    border-color: var(--background-light) transparent transparent transparent;
+}
+    </style>
+</head>
+<body>
+    <!-- Fixed Navbar -->
+    <nav class="navbar-fixed">
+        <div class="container mx-auto flex justify-between items-center">
+            <div>
+                <a href="/dashboard" class="navbar-brand">Dashboard</a>
+            </div>
+            <div class="flex items-center">
+                <button id="theme-toggle" aria-label="Toggle dark mode">
+                    <i class="fas fa-moon"></i>
+                </button>
+                <div class="relative">
+                    <button id="profile-btn" class="flex items-center" aria-label="Open user menu">
+                        <img src="https://img.icons8.com/ios-filled/50/ffffff/user.png" alt="User profile" class="w-10 h-10 rounded-full">
+                    </button>
+                    <div id="dropdown-menu" class="absolute right-0 mt-4 w-56 rounded-xl overflow-hidden">
+                        <div class="py-2">
+                            <a href="/visited" class="dropdown-item" style="--item-index: 1">
+                                <i class="fas fa-map-marker-alt"></i> Visited Places
+                            </a>
+                            <a href="/favorites" class="dropdown-item" style="--item-index: 2">
+                                <i class="fas fa-heart"></i> Favorites
+                            </a>
+                            <a href="/search-history" class="dropdown-item" style="--item-index: 3">
+                                <i class="fas fa-history"></i> Search History
+                            </a>
+                            <div class="dropdown-divider"></div>
+                            <a href="/edit-account" class="dropdown-item" style="--item-index: 4">
+                                <i class="fas fa-user-edit"></i> Edit Account
+                            </a>
+                            <a href="/logout" class="dropdown-item" style="--item-index: 5">
+                                <i class="fas fa-sign-out-alt"></i> Log Out
+                            </a>
+                            <div class="dropdown-divider"></div>
+                            <a href="/delete-account" class="dropdown-item danger" style="--item-index: 6">
+                                <i class="fas fa-trash-alt"></i> Delete Account
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Page Header -->
+    <header class="page-header">
+        <div class="header-shapes">
+            <div class="header-shape shape-1"></div>
+            <div class="header-shape shape-2"></div>
+            <div class="header-shape shape-3"></div>
+            <div class="header-shape shape-4"></div>
+        </div>
+        <div class="container">
+            <h1>Your Visited Places</h1>
+            <p>Relive your memories and track all the amazing destinations you've explored on your journeys.</p>
+        </div>
+    </header>
+
+    <!-- Visited Places Section -->
+    <section class="visited-container">
+        <div class="visited-grid">
+          <% if (visitedPlaces && visitedPlaces.length > 0) { %>
+            <% visitedPlaces.forEach(visitedItem => { %>
+              <% if (visitedItem.destination) { %>
+                <% const dest = visitedItem.destination; %>
+                <div class="place-card">
+                  <div class="place-card-image-container">
+                    <img src="<%= dest.image %>" alt="<%= dest.name %>" 
+                         class="place-card-image" loading="lazy">
+                  </div>
+                  <div class="place-card-content">
+                    <h3 class="place-card-title"><%= dest.name %></h3>
+                    <p class="place-card-desc"><%= dest.description %></p>
+                    <div class="place-card-actions">
+                      <a href="/destinations/<%= dest._id %>" 
+                         class="place-card-btn btn-details">
+                        <i class="fas fa-eye"></i> View Details
+                      </a>
+                      <button class="place-card-btn btn-favorite <%= visitedItem.isFavorite ? 'active' : '' %>" 
+                              data-place="<%= dest._id %>" aria-label="Toggle favorite">
+                        <i class="fas fa-heart"></i>
+                      </button>
+                    </div>
+                    <!-- Rating and Review Section -->
+                    <div class="rating-section">
+                        <div class="rating-stars" data-place="<%= dest._id %>">
+                            <i class="fas fa-star rating-star" data-value="1"></i>
+                            <i class="fas fa-star rating-star" data-value="2"></i>
+                            <i class="fas fa-star rating-star" data-value="3"></i>
+                            <i class="fas fa-star rating-star" data-value="4"></i>
+                            <i class="fas fa-star rating-star" data-value="5"></i>
+                        </div>
+                        <textarea class="review-textarea" placeholder="Share your experience..." data-place="<%= dest._id %>"></textarea>
+                        
+                        <!-- Add Image Upload Field -->
+                        <div class="image-upload-section">
+                            <label for="review-image-<%= dest._id %>">Add a photo from your visit:</label>
+                            <input type="file" id="review-image-<%= dest._id %>" name="reviewImage" class="review-image-input" data-place="<%= dest._id %>" accept="image/*">
+                        </div>
+                        
+                        <button class="submit-review-btn" data-place="<%= dest._id %>">
+                            <i class="fas fa-paper-plane"></i> Submit Review
+                        </button>
+                        
+                        <!-- Display Existing Review -->
+                        <% if (visitedItem.rating || visitedItem.review || visitedItem.reviewImage) { %>
+                            <div class="existing-review">
+                                <% if (visitedItem.rating) { %>
+                                    <div class="existing-rating">
+                                        <% for (let i = 1; i <= 5; i++) { %>
+                                            <i class="fas fa-star <%= i <= visitedItem.rating ? 'filled' : '' %>"></i>
+                                        <% } %>
+                                    </div>
+                                <% } %>
+                                <% if (visitedItem.review) { %>
+                                    <p class="existing-review-text"><%= visitedItem.review %></p>
+                                <% } %>
+                                <% if (visitedItem.reviewImage) { %>
+                                    <img src="<%= visitedItem.reviewImage %>" alt="Review Image" class="existing-review-image">
+                                <% } %>
+                            </div>
+                        <% } %>
+                    </div>
+                  </div>
+                </div>
+                <% } else { %>
+                <div class="place-card">
+                  <div class="place-card-content">
+                    <h3 class="place-card-title"><%= visitedItem.place %></h3>
+                    <p class="place-card-desc">No destination details available</p>
+                  </div>
+                </div>
+              <% } %>
+            <% }) %>
+          <% } else { %>
+            <div class="empty-card">
+              <i class="fas fa-map-marker-alt"></i>
+              <h3>No Places Visited Yet</h3>
+              <p>
+                Start your journey by exploring new destinations and create unforgettable memories!
+              </p>
+              <a href="/explore" class="empty-state-btn">
+                <i class="fas fa-compass"></i> Explore Now
+              </a>
+            </div>
+          <% } %>
+        </div>
+      </section>
+
+    <script>
+        // Toggle dropdown menu
+        document.getElementById('profile-btn').addEventListener('click', function(e) {
+            e.stopPropagation();
+            const dropdown = document.getElementById('dropdown-menu');
+            dropdown.classList.toggle('visible');
+        });
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(event) {
+            const dropdown = document.getElementById('dropdown-menu');
+            const profileBtn = document.getElementById('profile-btn');
+            
+            if (!profileBtn.contains(event.target) && !dropdown.contains(event.target)) {
+                dropdown.classList.remove('visible');
+            }
+        });
+
+        // Handle favorite toggle with animation
+        document.querySelectorAll('.btn-favorite').forEach(btn => {
+    btn.addEventListener('click', async function() {
+        const placeId = this.getAttribute('data-place');
+        const isFavorited = this.classList.contains('active');
+
+        // Optimistic UI update with animation
+        this.classList.toggle('active');
+        this.style.transform = 'scale(1.2)';
+        setTimeout(() => {
+            this.style.transform = '';
+        }, 300);
+
+        try {
+            const response = await fetch('/favorite/toggle', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ place: placeId, favorite: !isFavorited })
+            });
+
+            const data = await response.json();
+            if (!response.ok) {
+                throw new Error(data.error || 'Failed to toggle favorite');
+            }
+
+            if (!data.success) {
+                throw new Error(data.error || 'Unknown error');
+            }
+            // Success is handled by the optimistic update above
+        } catch (error) {
+            console.error('Error toggling favorite:', error);
+            // Revert UI on failure
+            this.classList.toggle('active');
+            alert('Failed to update favorite: ' + error.message);
+        }
+    });
+});
+
+        // Handle star rating selection with animation
+        document.querySelectorAll('.rating-stars').forEach(starsContainer => {
+            const stars = starsContainer.querySelectorAll('.rating-star');
+            
+            // Show rating preview on hover
+            stars.forEach(star => {
+                star.addEventListener('mouseover', function() {
+                    const value = parseInt(this.getAttribute('data-value'));
+                    stars.forEach(s => {
+                        const starValue = parseInt(s.getAttribute('data-value'));
+                        if (starValue <= value) {
+                            s.classList.add('filled');
+                        } else {
+                            s.classList.remove('filled');
+                        }
+                    });
+                });
+                
+                starsContainer.addEventListener('mouseleave', function() {
+                    // Reset to selected state
+                    const selected = starsContainer.querySelector('.selected');
+                    const selectedValue = selected ? parseInt(selected.getAttribute('data-value')) : 0;
+                    
+                    stars.forEach(s => {
+                        const starValue = parseInt(s.getAttribute('data-value'));
+                        if (starValue <= selectedValue) {
+                            s.classList.add('filled');
+                        } else {
+                            s.classList.remove('filled');
+                        }
+                    });
+                });
+                
+                star.addEventListener('click', function() {
+                    const value = parseInt(this.getAttribute('data-value'));
+                    
+                    // Remove selected class from all stars
+                    stars.forEach(s => s.classList.remove('selected'));
+                    
+                    // Add selected class to stars up to clicked one
+                    stars.forEach(s => {
+                        const starValue = parseInt(s.getAttribute('data-value'));
+                        if (starValue <= value) {
+                            s.classList.add('filled', 'selected');
+                        } else {
+                            s.classList.remove('filled', 'selected');
+                        }
+                    });
+                    
+                    // Add animation
+                    this.style.transform = 'scale(1.3)';
+                    setTimeout(() => {
+                        this.style.transform = '';
+                    }, 300);
+                });
+            });
+        });
+
+        // Handle review submission with improved UX
+        document.querySelectorAll('.submit-review-btn').forEach(btn => {
+            btn.addEventListener('click', async function() {
+                const placeId = this.getAttribute('data-place');
+                const starsContainer = document.querySelector(`.rating-stars[data-place="${placeId}"]`);
+                const textarea = document.querySelector(`.review-textarea[data-place="${placeId}"]`);
+                const imageInput = document.querySelector(`.review-image-input[data-place="${placeId}"]`);
+                const rating = starsContainer.querySelectorAll('.rating-star.selected').length;
+                const review = textarea.value.trim();
+
+                if (rating === 0 && !review && !imageInput.files[0]) {
+                    // Shake animation for validation error
+                    btn.style.animation = 'shake 0.5s';
+                    setTimeout(() => {
+                        btn.style.animation = '';
+                    }, 500);
+                    
+                    alert('Please provide a rating, review, or image.');
+                    return;
+                }
+
+                // Show loading state
+                const originalText = btn.innerHTML;
+                btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Submitting...';
+                btn.disabled = true;
+
+                const formData = new FormData();
+                formData.append('place', placeId);
+                formData.append('rating', rating);
+                formData.append('review', review);
+                if (imageInput.files[0]) {
+                    formData.append('reviewImage', imageInput.files[0]);
+                }
+
+                try {
+                    const response = await fetch('/submit-review', {
+                        method: 'POST',
+                        body: formData
+                    });
+
+                    if (response.ok) {
+                        // Success animation
+                        btn.innerHTML = '<i class="fas fa-check"></i> Success!';
+                        btn.style.backgroundColor = '#10b981'; // Success green
+                        
+                        setTimeout(() => {
+                            location.reload();
+                        }, 1000);
+                    } else {
+                        const text = await response.text();
+                        try {
+                            const errorData = JSON.parse(text);
+                            console.error('Server response error:', errorData);
+                            alert('Error submitting review: ' + (errorData.message || 'Unknown error'));
+                        } catch (jsonError) {
+                            console.error('Non-JSON response:', text);
+                            alert('Error submitting review: Server returned an unexpected response');
+                        }
+                        
+                        // Reset button
+                        btn.innerHTML = originalText;
+                        btn.disabled = false;
+                    }
+                } catch (error) {
+                    console.error('Fetch error:', error);
+                    alert('An error occurred while submitting your review: ' + error.message);
+                    
+                    // Reset button
+                    btn.innerHTML = originalText;
+                    btn.disabled = false;
+                }
+            });
+        });
+
+        // Toggle dark mode with smooth transition
+        document.getElementById('theme-toggle').addEventListener('click', function() {
+            const body = document.body;
+            const themeToggle = document.getElementById('theme-toggle');
+            
+            // Add transition class for smooth animation
+            body.style.transition = 'background-color 0.5s ease, color 0.5s ease';
+            
+            body.classList.toggle('dark');
+            
+            if (body.classList.contains('dark')) {
+                themeToggle.innerHTML = '<i class="fas fa-sun"></i>';
+                themeToggle.style.transform = 'rotate(180deg)';
+            } else {
+                themeToggle.innerHTML = '<i class="fas fa-moon"></i>';
+                themeToggle.style.transform = 'rotate(0deg)';
+            }
+            
+            localStorage.setItem('darkMode', body.classList.contains('dark'));
+            
+            // Remove transition after animation completes
+            setTimeout(() => {
+                body.style.transition = '';
+            }, 500);
+        });
+
+        // Check for saved theme preference
+        document.addEventListener('DOMContentLoaded', function() {
+            const isDarkMode = localStorage.getItem('darkMode') === 'true';
+            const body = document.body;
+            const themeToggle = document.getElementById('theme-toggle');
+            
+            if (isDarkMode) {
+                body.classList.add('dark');
+                themeToggle.innerHTML = '<i class="fas fa-sun"></i>';
+            } else {
+                body.classList.remove('dark');
+                themeToggle.innerHTML = '<i class="fas fa-moon"></i>';
+            }
+            
+            // Add shake animation keyframes
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes shake {
+                    0%, 100% { transform: translateX(0); }
+                    10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+                    20%, 40%, 60%, 80% { transform: translateX(5px); }
+                }
+            `;
+            document.head.appendChild(style);
+        });
+    </script>
+    <script>
+        // Enhanced JavaScript for interactive elements and animations
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize smooth scrollbar for better scrolling experience
+    if (typeof Scrollbar !== 'undefined') {
+        const scrollbar = Scrollbar.init(document.querySelector('#content'), {
+            damping: 0.1,
+            plugins: {
+                overscroll: {
+                    effect: 'glow'
+                }
+            }
+        });
+    }
+}); // Add this closing brace to properly close the function
+
+    // Theme toggle functionality
+    const themeToggle = document.getElementById('theme-toggle');
+    const body = document.body;
+    
+    // Check for saved theme preference or respect OS preference
+    const savedTheme = localStorage.getItem('theme');
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    
+    if (savedTheme === 'dark' || (!savedTheme && prefersDark)) {
+        body.classList.add('dark');
+        themeToggle.innerHTML = '<i class="fas fa-sun"></i>';
+    } else {
+        themeToggle.innerHTML = '<i class="fas fa-moon"></i>';
+    }
+    
+    // Theme toggle click handler
+    themeToggle.addEventListener('click', function() {
+        body.classList.toggle('dark');
+        
+        if (body.classList.contains('dark')) {
+            localStorage.setItem('theme', 'dark');
+            themeToggle.innerHTML = '<i class="fas fa-sun"></i>';
+            
+            // Subtle animation
+            themeToggle.animate([
+                { transform: 'rotate(0deg) scale(0.8)' },
+                { transform: 'rotate(360deg) scale(1.1)' },
+                { transform: 'rotate(720deg) scale(1)' }
+            ], {
+                duration: 600,
+                easing: 'cubic-bezier(0.68, -0.6, 0.32, 1.6)'
+            });
+        } else {
+            localStorage.setItem('theme', 'light');
+            themeToggle.innerHTML = '<i class="fas fa-moon"></i>';
+            
+            // Subtle animation
+            themeToggle.animate([
+                { transform: 'rotate(0deg) scale(0.8)' },
+                { transform: 'rotate(-360deg) scale(1.1)' },
+                { transform: 'rotate(-720deg) scale(1)' }
+            ], {
+                duration: 600,
+                easing: 'cubic-bezier(0.68, -0.6, 0.32, 1.6)'
+            });
+        }
+    });
+    
+    // Profile dropdown menu functionality
+    const profileBtn = document.getElementById('profile-btn');
+    const dropdownMenu = document.getElementById('dropdown-menu');
+    
+    if (profileBtn && dropdownMenu) {
+        // Set dropdown item animations
+        const dropdownItems = document.querySelectorAll('.dropdown-item');
+        dropdownItems.forEach((item, index) => {
+            item.style.setProperty('--item-index', index);
+        });
+        
+        // Toggle dropdown visibility
+        profileBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            dropdownMenu.classList.toggle('visible');
+            
+            if (dropdownMenu.classList.contains('visible')) {
+                // Animate dropdown items when menu opens
+                dropdownItems.forEach((item, index) => {
+                    item.style.animationDelay = `${index * 0.05}s`;
+                });
+            }
+        });
+        
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function() {
+            if (dropdownMenu.classList.contains('visible')) {
+                dropdownMenu.classList.remove('visible');
+            }
+        });
+        
+        // Prevent dropdown from closing when clicking inside
+        dropdownMenu.addEventListener('click', function(e) {
+            e.stopPropagation();
+        });
+    }
+    
+    // Favorite button functionality
+    const favoriteButtons = document.querySelectorAll('.btn-favorite');
+    
+    favoriteButtons.forEach(btn => {
+        btn.addEventListener('click', function() {
+            btn.classList.toggle('active');
+            
+            if (btn.classList.contains('active')) {
+                btn.innerHTML = '<i class="fas fa-heart"></i>';
+                btn.animate([
+                    { transform: 'scale(0.8)' },
+                    { transform: 'scale(1.3)' },
+                    { transform: 'scale(1.1)' }
+                ], {
+                    duration: 400,
+                    easing: 'cubic-bezier(0.68, -0.6, 0.32, 1.6)'
+                });
+            } else {
+                btn.innerHTML = '<i class="far fa-heart"></i>';
+            }
+        });
+    });
+    
+    // Rating stars functionality
+    const ratingStars = document.querySelectorAll('.rating-star');
+    
+    ratingStars.forEach((star, index) => {
+        star.addEventListener('click', function() {
+            // Update UI to reflect selected rating
+            ratingStars.forEach((s, i) => {
+                if (i <= index) {
+                    s.classList.add('filled');
+                    s.innerHTML = '<i class="fas fa-star"></i>';
+                } else {
+                    s.classList.remove('filled');
+                    s.innerHTML = '<i class="far fa-star"></i>';
+                }
+            });
+            
+            // Store rating value (index + 1) for form submission
+            document.getElementById('rating-value').value = index + 1;
+        });
+    });
+    
+    // Form validation for review submission
+    const reviewForm = document.getElementById('review-form');
+    
+    if (reviewForm) {
+        reviewForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const reviewText = document.querySelector('.review-textarea').value;
+            const ratingValue = document.getElementById('rating-value').value;
+            
+            if (!ratingValue || ratingValue === '0') {
+                showNotification('Please select a rating', 'error');
+                return;
+            }
+            
+            if (!reviewText.trim()) {
+                showNotification('Please enter your review', 'error');
+                return;
+            }
+            
+            // Here you would normally submit the form data via AJAX
+            // For demonstration, we'll just show a success message
+            showNotification('Review submitted successfully!', 'success');
+            
+            // Reset form
+            reviewForm.reset();
+            ratingStars.forEach(s => {
+                s.classList.remove('filled');
+                s.innerHTML = '<i class="far fa-star"></i>';
+            });
+            document.getElementById('rating-value').value = 0;
+        });
+    }
+    
+    // Custom notification system
+    function showNotification(message, type = 'info') {
+        // Remove any existing notifications
+        const existingNotification = document.querySelector('.notification');
+        if (existingNotification) {
+            existingNotification.remove();
+        }
+        
+        // Create notification element
+        const notification = document.createElement('div');
+        notification.classList.add('notification', `notification-${type}`);
+        
+        let icon = '';
+        switch(type) {
+            case 'success':
+                icon = '<i class="fas fa-check-circle"></i>';
+                break;
+            case 'error':
+                icon = '<i class="fas fa-exclamation-circle"></i>';
+                break;
+            case 'info':
+                icon = '<i class="fas fa-info-circle"></i>';
+                break;
+            default:
+                icon = '<i class="fas fa-bell"></i>';
+        }
+        
+        notification.innerHTML = `
+            <div class="notification-content">
+                ${icon}
+                <span>${message}</span>
+            </div>
+            <button class="notification-close"><i class="fas fa-times"></i></button>
+        `;
+        
+        // Add to DOM
+        document.body.appendChild(notification);
+        
+        // Add close button functionality
+        notification.querySelector('.notification-close').addEventListener('click', function() {
+            notification.classList.add('notification-hiding');
+            setTimeout(() => {
+                notification.remove();
+            }, 300);
+        });
+        
+        // Show with animation
+        setTimeout(() => {
+            notification.classList.add('notification-visible');
+        }, 10);
+        
+        // Auto hide after 5 seconds
+        setTimeout(() => {
+            if (document.body.contains(notification)) {
+                notification.classList.add('notification-hiding');
+                setTimeout(() => {
+                    if (document.body.contains(notification)) {
+                        notification.remove();
+                    }
+                }, 300);
+            }
+        }, 5000);
+    }
+    
+    // Animate elements when they come into view
+    const animateOnScroll = function() {
+        const elements = document.querySelectorAll('.animate-on-scroll:not(.visible)');
+        
+        elements.forEach(element => {
+            if (isElementInViewport(element)) {
+                element.classList.add('visible');
+            }
+        });
+    };
+    
+    // Helper function to check if element is in viewport
+    function isElementInViewport(el) {
+        const rect = el.getBoundingClientRect();
+        return (
+            rect.top <= (window.innerHeight || document.documentElement.clientHeight) * 0.85 &&
+            rect.bottom >= 0
+        );
+    }
+    
+    // Initial check for elements in viewport
+    animateOnScroll();
+    
+    // Listen for scroll events to trigger animations
+    window.addEventListener('scroll', animateOnScroll);
+    
+    // Add animation classes to elements
+    document.querySelectorAll('.place-card').forEach(card => {
+        card.classList.add('animate-on-scroll');
+    });
+    
+    document.querySelectorAll('.empty-card').forEach(card => {
+        card.classList.add('animate-on-scroll');
+    });
+    
+    // Initialize tooltips
+    document.querySelectorAll('[data-tooltip]').forEach(element => {
+        element.classList.add('tooltip');
+    });
+    
+    // Sticky navbar effect
+    const navbar = document.querySelector('.navbar-fixed');
+    let lastScrollTop = 0;
+    
+    window.addEventListener('scroll', function() {
+        const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+        
+        if (scrollTop > 100) {
+            navbar.style.padding = '10px 0';
+            navbar.style.boxShadow = '0 5px 15px rgba(0,0,0,0.1)';
+        } else {
+            navbar.style.padding = '15px 0';
+            navbar.style.boxShadow = '0 1px 3px rgba(0,0,0,0.1)';
+        }
+        
+        lastScrollTop = scrollTop;
+    });
+
+    // Add notification styles dynamically
+    const notificationStyles = document.createElement('style');
+    notificationStyles.textContent = `
+        .notification {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            padding: 16px 20px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            min-width: 300px;
+            max-width: 400px;
+            z-index: 9999;
+            transform: translateY(100px);
+            opacity: 0;
+            transition: transform 0.3s ease, opacity 0.3s ease;
+        }
+        
+        .notification-visible {
+            transform: translateY(0);
+            opacity: 1;
+        }
+        
+        .notification-hiding {
+            transform: translateY(50px);
+            opacity: 0;
+        }
+        
+        .notification-content {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .notification-content i {
+            font-size: 20px;
+        }
+        
+        .notification-success {
+            border-left: 4px solid #10b981;
+        }
+        
+        .notification-success i {
+            color: #10b981;
+        }
+        
+        .notification-error {
+            border-left: 4px solid #ef4444;
+        }
+        
+        .notification-error i {
+            color: #ef4444;
+        }
+        
+        .notification-info {
+            border-left: 4px solid #3b82f6;
+        }
+        
+        .notification-info i {
+            color: #3b82f6;
+        }
+        .notification-close {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 20px;
+            color: #333;
+            transition: color 0.3s ease;
+        }
+        .notification-close:hover {
+            color: #ef4444;
+        }
+        .notification-close:focus {
+            outline: none;
+        }
+        .notification-close i {
+            font-size: 20px;
+        }
+        .notification-close:hover i {
+            color: #ef4444;
+        }
+        .notification-close:focus i {
+            outline: none;
+        }
+    `;
+    document.head.appendChild(notificationStyles);
+    </script>
+</body>
+</html>

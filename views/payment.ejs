@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Complete Payment</title>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <style>
+    :root {
+      /* Ultra-modern color palette */
+      --midnight: #0a0e17;         /* Deep space blue background */
+      --deep-space: #121828;       /* Slightly lighter for cards */
+      --cosmic-teal: #2dd4bf;      /* Vibrant teal - primary accent */
+      --neon-blue: #3b82f6;        /* Electric blue - secondary accent */
+      --stardust: #94a3b8;         /* Soft stardust gray for text */
+      --moonlight: #e2e8f0;        /* Bright moonlight for headings */
+      --galaxy-purple: #7c3aed;    /* Purple for special highlights */
+      --supernova: #f59e0b;        /* Golden yellow for important elements */
+      
+      /* UI Variables */
+      --text-color: var(--moonlight);
+      --light-text: var(--stardust);
+      --background: var(--midnight);
+      --card-bg: rgba(18, 24, 40, 0.85);
+      --border-color: rgba(148, 163, 184, 0.15);
+      --shadow: 0 12px 40px rgba(0, 0, 0, 0.25);
+      --radius: 18px;
+      --glass-blur: blur(12px);
+      --transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.1);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      transition: var(--transition);
+    }
+
+    body {
+      font-family: 'Montserrat', 'Poppins', sans-serif;
+      background: 
+        radial-gradient(circle at 15% 30%, rgba(45, 212, 191, 0.08), transparent 70%),
+        radial-gradient(circle at 85% 70%, rgba(59, 130, 246, 0.08), transparent 70%),
+        linear-gradient(to bottom, var(--midnight), var(--deep-space));
+      background-attachment: fixed;
+      color: var(--text-color);
+      line-height: 1.6;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+
+    .payment-container {
+      max-width: 500px;
+      width: 100%;
+      padding: 30px;
+      border-radius: var(--radius);
+      background: var(--card-bg);
+      backdrop-filter: var(--glass-blur);
+      box-shadow: var(--shadow);
+      border: 1px solid var(--border-color);
+      text-align: center;
+      animation: slideUp 0.8s ease-out;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .payment-container::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 5px;
+      background: linear-gradient(to right, var(--cosmic-teal), var(--neon-blue));
+      opacity: 0.8;
+    }
+
+    .payment-container::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, 
+        rgba(45, 212, 191, 0.1) 0%, 
+        rgba(59, 130, 246, 0.1) 100%);
+      z-index: -1;
+    }
+
+    h2 {
+      background: linear-gradient(90deg, var(--cosmic-teal), var(--neon-blue));
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      font-size: 26px;
+      font-weight: 700;
+      margin-bottom: 25px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+    }
+
+    .payment-details {
+      text-align: left;
+      margin-bottom: 30px;
+      background: rgba(18, 24, 40, 0.6);
+      padding: 20px;
+      border-radius: 12px;
+      border: 1px solid var(--border-color);
+    }
+
+    .payment-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--border-color);
+      transition: all 0.3s ease;
+    }
+
+    .payment-item:hover {
+      background: rgba(59, 130, 246, 0.05);
+      padding-left: 8px;
+      padding-right: 8px;
+      border-radius: 8px;
+    }
+
+    .payment-item:last-child {
+      border-bottom: none;
+    }
+
+    .payment-label {
+      font-weight: 500;
+      color: var(--light-text);
+      font-size: 15px;
+    }
+
+    .payment-value {
+      font-weight: 600;
+      color: var(--text-color);
+    }
+
+    .payment-value.price {
+      color: var(--cosmic-teal);
+    }
+
+    .total-row {
+      margin-top: 15px;
+      padding-top: 15px;
+      border-top: 2px solid var(--border-color);
+      font-size: 18px;
+    }
+
+    .total-row .payment-label {
+      font-size: 18px;
+      color: var(--text-color);
+    }
+
+    .total-row .payment-value {
+      color: var(--supernova);
+      font-size: 24px;
+      font-weight: 700;
+    }
+
+    .btn-primary {
+      width: 100%;
+      padding: 16px;
+      font-size: 16px;
+      border-radius: 12px;
+      cursor: pointer;
+      background: linear-gradient(135deg, var(--cosmic-teal), var(--neon-blue));
+      border: none;
+      color: white;
+      font-weight: 600;
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      box-shadow: 0 4px 20px rgba(59, 130, 246, 0.3);
+      z-index: 1;
+    }
+
+    .btn-primary::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, var(--neon-blue), var(--cosmic-teal));
+      opacity: 0;
+      transition: var(--transition);
+      z-index: -1;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 30px rgba(59, 130, 246, 0.5);
+    }
+
+    .btn-primary:hover::before {
+      opacity: 1;
+    }
+
+    .btn-primary::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+      transition: 0.5s;
+    }
+
+    .btn-primary:hover::after {
+      left: 100%;
+    }
+
+    /* Animations */
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+      100% { transform: scale(1); }
+    }
+
+    @keyframes priceUpdate {
+      0% { transform: scale(1); background: rgba(45, 212, 191, 0.3); }
+      50% { transform: scale(1.1); background: rgba(45, 212, 191, 0.5); }
+      100% { transform: scale(1); background: rgba(45, 212, 191, 0.15); }
+    }
+
+    .price-updated {
+      animation: priceUpdate 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 600px) {
+      .payment-container {
+        padding: 25px 20px;
+      }
+      
+      h2 {
+        font-size: 22px;
+      }
+      
+      .payment-details {
+        padding: 15px;
+      }
+      
+      .payment-label {
+        font-size: 14px;
+      }
+      
+      .payment-value {
+        font-size: 15px;
+      }
+      
+      .total-row .payment-value {
+        font-size: 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="payment-container">
+    <h2><i class="fas fa-credit-card"></i> Complete Your Payment</h2>
+    <div class="payment-details">
+      <div class="payment-item">
+        <span class="payment-label">Username:</span>
+        <span class="payment-value"><%= booking.username %></span>
+      </div>
+      <div class="payment-item">
+        <span class="payment-label">Booking ID:</span>
+        <span class="payment-value"><%= booking._id %></span>
+      </div>
+      <div class="payment-item">
+        <span class="payment-label">Destination:</span>
+        <span class="payment-value"><%= destination.name %></span>
+      </div>
+      <div class="payment-item">
+        <span class="payment-label">Hotel Price:</span>
+        <span class="payment-value price">₹<%= booking.hotel_price %></span>
+      </div>
+      <div class="payment-item">
+        <span class="payment-label">Flight Price:</span>
+        <span class="payment-value price">₹<%= booking.flight_price %></span>
+      </div>
+      <div class="payment-item total-row">
+        <span class="payment-label">Total Amount:</span>
+        <span class="payment-value">₹<%= booking.amount_paid %></span>
+      </div>
+    </div>
+    <form id="payment-form" action="/payment/complete" method="POST">
+      <input type="hidden" name="booking_id" value="<%= booking._id %>">
+      <input type="hidden" name="amount" value="<%= booking.amount_paid %>">
+      <input type="hidden" name="username" value="<%= booking.username %>">
+      <input type="hidden" name="payment_method" value="Credit Card">
+      <button type="submit" class="btn-primary"><i class="fas fa-money-check-alt"></i> Payment Completed </button>
+      <p>CONFIRMED</p>
+    </form>
+  </div>
+
+  <script>
+    document.getElementById("payment-form").addEventListener("submit", function(event) {
+      event.preventDefault();
+      const form = this;
+      const submitBtn = form.querySelector('button[type="submit"]');
+      const originalBtnText = submitBtn.innerHTML;
+
+      submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+      submitBtn.disabled = true;
+
+      fetch(form.action, {
+        method: "POST",
+        body: new URLSearchParams(new FormData(form)),
+        headers: { "Content-Type": "application/x-www-form-urlencoded" }
+      })
+      .then(response => response.json())
+      .then(data => {
+        submitBtn.innerHTML = originalBtnText;
+        submitBtn.disabled = false;
+
+        if (data.success) {
+          // Add success animation
+          document.querySelector('.payment-container').style.animation = 'pulse 0.8s ease';
+          setTimeout(() => {
+            window.location.href = data.redirectUrl;
+          }, 800);
+        } else {
+          alert("Payment failed: " + data.message);
+        }
+      })
+      .catch(error => {
+        submitBtn.innerHTML = originalBtnText;
+        submitBtn.disabled = false;
+        console.error("Payment error:", error);
+        alert("An error occurred while processing your payment.");
+      });
+    });
+  </script>
+</body>
+</html>

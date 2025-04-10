@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Reservations</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        :root {
+            --font-primary: 'Satoshi', 'Montserrat', sans-serif;
+            --font-display: 'Clash Display', 'Playfair Display', serif;
+            --gradient-start: #0f172a;
+            --gradient-mid: #1e40af;
+            --gradient-end: #3b82f6;
+            --gradient-accent: #38bdf8;
+            --text-light: #f8fafc;
+            --text-dark: #1e293b;
+            --card-shadow: 0px 10px 30px rgba(0, 0, 0, 0.15), 0px 5px 15px rgba(0, 0, 0, 0.12);
+            --transition-standard: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: var(--font-primary);
+            background: linear-gradient(135deg, var(--gradient-start) 0%, var(--gradient-mid) 100%);
+            color: var(--text-light);
+            min-height: 100vh;
+        }
+
+        .navbar-fixed {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 50;
+            background: rgba(15, 23, 42, 0.2);
+            backdrop-filter: blur(20px);
+            padding: 1rem 2rem;
+        }
+
+        .navbar-brand {
+            font-family: var(--font-display);
+            font-weight: 700;
+            font-size: 1.5rem;
+            color: var(--text-light);
+            text-decoration: none;
+        }
+
+        .section-heading {
+            font-family: var(--font-display);
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 2rem;
+            text-align: center;
+            background: linear-gradient(90deg, #fff, var(--gradient-accent));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .reservation-card {
+            background: rgba(15, 23, 42, 0.6);
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: var(--card-shadow);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            transition: var(--transition-standard);
+        }
+
+        .reservation-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            border-color: rgba(56, 189, 248, 0.3);
+        }
+
+        .action-btn {
+            padding: 10px 20px;
+            border-radius: 30px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            transition: var(--transition-standard);
+            background: linear-gradient(90deg, var(--gradient-mid), var(--gradient-end));
+            color: white;
+        }
+
+        .action-btn:hover {
+            background: linear-gradient(90deg, var(--gradient-end), var(--gradient-accent));
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(30, 64, 175, 0.3);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            backdrop-filter: blur(8px);
+        }
+
+        .modal-content {
+            background: linear-gradient(135deg, rgba(15, 23, 42, 0.95), rgba(30, 64, 175, 0.95));
+            padding: 30px;
+            border-radius: 16px;
+            width: 90%;
+            max-width: 350px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            color: #fff;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .close {
+            font-size: 1.8em;
+            cursor: pointer;
+            color: rgba(255, 255, 255, 0.7);
+            float: right;
+            transition: var(--transition-standard);
+        }
+
+        .close:hover {
+            color: #fff;
+            transform: rotate(90deg);
+        }
+
+        input[type="date"] {
+            width: 100%;
+            padding: 12px 15px;
+            margin-top: 5px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.05);
+            color: #fff;
+            font-family: var(--font-primary);
+        }
+
+        input[type="date"]:focus {
+            outline: none;
+            border-color: var(--gradient-accent);
+            box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.2);
+        }
+
+        #saveDate {
+            background: linear-gradient(90deg, var(--gradient-mid), var(--gradient-end));
+            color: white;
+            padding: 12px;
+            margin-top: 20px;
+            border: none;
+            cursor: pointer;
+            width: 100%;
+            border-radius: 30px;
+            font-size: 1em;
+            font-weight: 600;
+            transition: var(--transition-standard);
+        }
+
+        #saveDate:hover {
+            background: linear-gradient(90deg, var(--gradient-end), var(--gradient-accent));
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(30, 64, 175, 0.4);
+        }
+
+        .empty-card {
+            background: rgba(15, 23, 42, 0.6);
+            border-radius: 24px;
+            padding: 60px 40px;
+            text-align: center;
+            box-shadow: var(--card-shadow);
+        }
+
+        .cancel-btn {
+            background: linear-gradient(90deg, #dc2626, #ef4444);
+        }
+
+        .cancel-btn:hover {
+            background: linear-gradient(90deg, #ef4444, #f87171);
+            box-shadow: 0 10px 25px rgba(220, 38, 38, 0.3);
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-white">
+    <!-- Navbar -->
+    <nav class="navbar-fixed">
+        <div class="container mx-auto flex justify-between items-center">
+            <a href="/" class="navbar-brand">Wanderlust</a>
+            <a href="/" class="text-white">Back to Dashboard</a>
+        </div>
+    </nav>
+
+    <!-- Reservations Section -->
+    <section class="p-6 mt-20">
+        <h2 class="section-heading">My Reservations</h2>
+        <div class="container mx-auto">
+            <div id="reservationsList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <% if (!reservations || reservations.length === 0) { %>
+                    <div class="empty-card">
+                        <i class="fas fa-calendar-alt fa-4x mb-4 opacity-70 text-[var(--gradient-accent)]"></i>
+                        <h3 class="text-2xl font-bold mb-2 text-white">No Reservations Found</h3>
+                        <p class="text-white opacity-80">Book a trip to start your adventure!</p>
+                    </div>
+                <% } else { %>
+                    <% reservations.forEach(reservation => { %>
+                        <div class="reservation-card">
+                            <h3 class="text-xl font-semibold mb-2"><%= reservation.destination_id?.name || "Unknown Destination" %></h3>
+                            <p class="mb-2">Visit Date: <%= new Date(reservation.visit_date).toLocaleDateString() %></p>
+                            <p class="mb-4">Booking ID: <%= reservation.booking_id %></p>
+                            <div class="flex space-x-4">
+                                <button class="action-btn change-date-btn" data-reservation-id="<%= reservation._id %>">
+                                    <i class="fas fa-calendar-alt mr-2"></i>Change Date
+                                </button>
+                                <button class="action-btn cancel-btn" data-reservation-id="<%= reservation._id %>">
+                                    <i class="fas fa-times mr-2"></i>Cancel
+                                </button>
+                            </div>
+                        </div>
+                    <% }) %>
+                <% } %>
+            </div>
+        </div>
+    </section>
+
+    <!-- Modal for Changing Date -->
+    <div id="dateModal" class="modal">
+        <div class="modal-content">
+            <span class="close">×</span>
+            <h3>Change Visit Date</h3>
+            <p id="selectedReservation"></p>
+            <label for="visitDate">New Visit Date:</label>
+            <input type="date" id="visitDate" required>
+            <button id="saveDate">Save</button>
+        </div>
+    </div>
+
+    <!-- Script -->
+    <script>
+        console.log("Script loaded and running");
+    
+        document.addEventListener("DOMContentLoaded", () => {
+            console.log("DOM fully loaded, initializing script");
+            fetchReservations();
+    
+            const dateModal = document.getElementById("dateModal");
+            const closeModalBtn = document.querySelector(".close");
+            const saveDateBtn = document.getElementById("saveDate");
+            const visitDateInput = document.getElementById("visitDate");
+            const selectedReservationEl = document.getElementById("selectedReservation");
+    
+            if (!dateModal || !closeModalBtn || !saveDateBtn || !visitDateInput || !selectedReservationEl) {
+                console.error("One or more modal elements not found");
+                return;
+            }
+    
+            async function fetchReservations() {
+                console.log("fetchReservations started");
+                const reservationsList = document.getElementById("reservationsList");
+                if (!reservationsList) {
+                    console.error("reservationsList element not found");
+                    return;
+                }
+                reservationsList.innerHTML = '<p class="text-gray-400 text-center">Loading reservations...</p>';
+    
+                try {
+                    console.log("Fetching from /user-reservations");
+                    const response = await fetch("/user-reservations", {
+                        method: "GET",
+                        headers: { "Content-Type": "application/json" },
+                        credentials: "include"
+                    });
+    
+                    console.log("Fetch response status:", response.status);
+                    if (!response.ok) {
+                        const errorText = await response.text();
+                        throw new Error(`HTTP error! Status: ${response.status}, Message: ${errorText}`);
+                    }
+                    const reservations = await response.json();
+                    console.log("Fetched reservations:", reservations);
+    
+                    reservationsList.innerHTML = "";
+                    if (!reservations || reservations.length === 0) {
+                        console.log("No reservations found");
+                        reservationsList.innerHTML = `
+                            <div class="empty-card">
+                                <i class="fas fa-calendar-alt fa-4x mb-4 opacity-70 text-[var(--gradient-accent)]"></i>
+                                <h3 class="text-2xl font-bold mb-2 text-white">No Reservations Found</h3>
+                                <p class="text-white opacity-80">Book a trip to start your adventure!</p>
+                            </div>`;
+                        return;
+                    }
+    
+                    reservations.forEach(reservation => {
+                        const visitDate = new Date(reservation.visit_date).toLocaleDateString();
+                        const destinationName = reservation.destination_id?.name || "Unknown Destination";
+                        console.log("Rendering:", reservation._id, "Destination:", destinationName);
+    
+                        const card = document.createElement("div");
+                        card.classList.add("reservation-card");
+                        card.innerHTML = `
+                            <h3 class="text-xl font-semibold mb-2">${destinationName}</h3>
+                            <p class="mb-2">Visit Date: ${visitDate}</p>
+                            <p class="mb-4">Booking ID: ${reservation._id}</p>
+                            <div class="flex space-x-4">
+                                <button class="action-btn change-date-btn" data-reservation-id="${reservation._id}">
+                                    <i class="fas fa-calendar-alt mr-2"></i>Change Date
+                                </button>
+                                <button class="action-btn cancel-btn" data-reservation-id="${reservation._id}">
+                                    <i class="fas fa-times mr-2"></i>Cancel
+                                </button>
+                            </div>
+                        `;
+                        reservationsList.appendChild(card);
+                    });
+    
+                    // Event listeners for change date buttons
+                    document.querySelectorAll(".change-date-btn").forEach(btn => {
+                        btn.addEventListener("click", () => {
+                            const reservationId = btn.getAttribute("data-reservation-id");
+                            const reservation = reservations.find(r => r._id === reservationId);
+                            console.log("Opening modal for:", reservationId);
+                            openChangeDateModal(reservationId, reservation);
+                        });
+                    });
+
+                    // Event listeners for cancel buttons
+                    document.querySelectorAll(".cancel-btn").forEach(btn => {
+    btn.addEventListener("click", async () => {
+        const reservationId = btn.getAttribute("data-reservation-id");
+        if (confirm("Are you sure you want to cancel this reservation?")) {
+            try {
+                const url = `/api/reservations/cancel/${reservationId}`; // Or use absolute URL
+                console.log("Sending DELETE request to:", url);
+                const response = await fetch(url, {
+                    method: "DELETE",
+                    headers: { "Content-Type": "application/json" },
+                    credentials: "include"
+                });
+
+                console.log("Response status:", response.status);
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    console.log("Error response:", errorText);
+                    throw new Error(`HTTP error! Status: ${response.status}, Message: ${errorText}`);
+                }
+
+                const data = await response.json();
+                if (data.success) {
+                    alert("Reservation cancelled successfully!");
+                    fetchReservations();
+                }
+            } catch (error) {
+                console.error("Error cancelling reservation:", error);
+                alert(`Failed to cancel reservation: ${error.message}`);
+            }
+        }
+    });
+});
+                } catch (error) {
+                    console.error("Error in fetchReservations:", error);
+                    reservationsList.innerHTML = `<p class="text-red-400 text-center">Error: ${error.message}</p>`;
+                }
+            }
+    
+            function openChangeDateModal(reservationId, reservation) {
+                if (!reservation) {
+                    console.error("Reservation not found for ID:", reservationId);
+                    return;
+                }
+                selectedReservationEl.textContent = `Destination: ${reservation.destination_id?.name || "Unknown"} - Current Date: ${new Date(reservation.visit_date).toLocaleDateString()}`;
+                visitDateInput.value = reservation.visit_date.split("T")[0];
+                dateModal.style.display = "flex";
+    
+                saveDateBtn.onclick = async () => {
+                    const newDate = visitDateInput.value;
+                    if (newDate) {
+                        try {
+                            const url = `/api/reservations/update-date/${reservationId}`;
+                            console.log("Sending PUT request to:", url, "with date:", newDate);
+                            const response = await fetch(url, {
+                                method: "PUT",
+                                headers: { "Content-Type": "application/json" },
+                                body: JSON.stringify({ visit_date: newDate }),
+                                credentials: "include"
+                            });
+    
+                            console.log("PUT response status:", response.status);
+                            if (!response.ok) {
+                                const errorText = await response.text();
+                                throw new Error(`HTTP error! Status: ${response.status}, Message: ${errorText}`);
+                            }
+                            const data = await response.json();
+    
+                            if (data.success) {
+                                alert("Visit date updated successfully!");
+                                closeModal();
+                                fetchReservations();
+                            } else {
+                                throw new Error(data.error || "Failed to update date");
+                            }
+                        } catch (error) {
+                            console.error("Error updating visit date:", error);
+                            alert(`Failed to update visit date: ${error.message}`);
+                        }
+                    }
+                };
+            }
+    
+            function closeModal() {
+                dateModal.style.display = "none";
+                visitDateInput.value = "";
+            }
+    
+            closeModalBtn.addEventListener("click", closeModal);
+        });
+    </script>
+</body>
+</html>

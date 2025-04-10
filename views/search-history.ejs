@@ -1,0 +1,1029 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search History | Tourism App</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/smooth-scrollbar/8.6.3/smooth-scrollbar.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/smooth-scrollbar/8.6.3/plugins/overscroll.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css?family=Roboto:400,500,700,900&subset=latin-ext');
+        
+        /* Dark Theme Variables */
+:root {
+    --primary-color: #44107A;
+    --secondary-color: #FF1361;
+    --gradient-start: #231557;
+    --gradient-mid: #44107A;
+    --gradient-end: #FF1361;
+    --gradient-accent: #fa9b48;
+    --gradient-search: #3498db;
+    --gradient-search-end: #2980b9;
+    --text-light: #f2f7fd;
+    --text-dark: #1a1a2e;
+    --card-shadow: 0px 7px 16px 0px rgba(41,53,108,0.25);
+    --container-shadow: 0px 7px 46px 0px rgba(41, 53, 108, 0.45);
+    --background-light: #f2f7fd;
+    --background-dark: #1a1a2e;
+    --navbar-background-light: linear-gradient(to right, var(--gradient-start), var(--gradient-mid));
+    --navbar-background-dark: #1a1a2e;
+    --dropdown-background-light: white;
+    --dropdown-background-dark: #2a2a40;
+    --dropdown-text-light: var(--text-dark);
+    --dropdown-text-dark: var(--text-light);
+}
+
+/* Dark Theme Styles */
+body.dark {
+    background-color: var(--background-dark);
+    color: var(--text-light);
+}
+
+body.dark .navbar-fixed {
+    background: var(--navbar-background-dark);
+}
+
+body.dark #dropdown-menu {
+    background-color: var(--dropdown-background-dark);
+    color: var(--dropdown-text-dark);
+}
+
+body.dark .dropdown-item {
+    color: var(--dropdown-text-dark);
+}
+
+body.dark .dropdown-item:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+body.dark .dropdown-item.danger {
+    color: #e53e3e;
+}
+
+body.dark .dropdown-item.danger:hover {
+    background-color: rgba(229, 62, 62, 0.1);
+}
+
+body.dark .search-card {
+    background-image: linear-gradient(147deg, #2a2a40 0%, #1a1a2e 74%);
+    color: var(--text-light);
+}
+
+body.dark .search-content {
+    background: rgba(42, 42, 64, 0.9);
+    color: var(--text-light);
+}
+
+body.dark .search-title {
+    color: var(--text-light);
+}
+
+body.dark .search-time, body.dark .search-category {
+    color: #aaa;
+}
+
+body.dark .search-results-count span {
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+body.dark .category-badge {
+    background-color: rgba(255, 255, 255, 0.1);
+    color: var(--text-light);
+}
+
+body.dark .empty-state {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+body.dark .filter-btn {
+    background-color: rgba(255, 255, 255, 0.1);
+    color: var(--text-light);
+}
+
+body.dark .filter-btn.active {
+    background-color: var(--gradient-search);
+}
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        html {
+            position: relative;
+            overflow-x: hidden !important;
+        }
+        
+        body {
+            font-family: 'Roboto', sans-serif;
+            font-size: 16px;
+            background: #f2f7fd;
+            margin: 0;
+            padding: 0;
+            color: var(--text-light);
+            min-height: 100vh;
+        }
+        
+        a, a:hover {
+            text-decoration: none;
+        }
+        
+        /* Navbar styles */
+        .navbar-fixed {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background-image: linear-gradient(to right, var(--gradient-start), var(--gradient-mid));
+            padding: 15px 0;
+            z-index: 1000;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        .mx-auto {
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        .flex {
+            display: flex;
+        }
+        
+        .justify-between {
+            justify-content: space-between;
+        }
+        
+        .items-center {
+            align-items: center;
+        }
+        
+        .navbar-brand {
+            color: white;
+            font-size: 1.5rem;
+            font-weight: 700;
+            transition: all 0.3s ease;
+        }
+        
+        .navbar-brand:hover {
+            color: var(--gradient-accent);
+        }
+        
+        .relative {
+            position: relative;
+        }
+        
+        #profile-btn {
+            cursor: pointer;
+            background: none;
+            border: none;
+            padding: 5px;
+            border-radius: 50%;
+            transition: all 0.3s ease;
+        }
+        
+        #profile-btn:hover {
+            background-color: rgba(255,255,255,0.1);
+        }
+        
+        .w-10 {
+            width: 2.5rem;
+        }
+        
+        .h-10 {
+            height: 2.5rem;
+        }
+        
+        .rounded-full {
+            border-radius: 9999px;
+        }
+        
+        #dropdown-menu {
+            position: absolute;
+            right: 0;
+            top: 100%;
+            background-color: white;
+            color: var(--text-dark);
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            transition: all 0.3s ease;
+            z-index: 1000;
+            width: 200px;
+            margin-top: 10px;
+        }
+        
+        .opacity-0 {
+            opacity: 0;
+        }
+        
+        .invisible {
+            visibility: hidden;
+        }
+        
+        .py-2 {
+            padding-top: 0.5rem;
+            padding-bottom: 0.5rem;
+        }
+        
+        .grid {
+            display: grid;
+        }
+        
+        .grid-cols-2 {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+        
+        .gap-1 {
+            gap: 0.25rem;
+        }
+        
+        .dropdown-item {
+            display: block;
+            padding: 0.75rem 1rem;
+            color: var(--text-dark);
+            font-weight: 500;
+            transition: all 0.3s ease;
+            opacity: 0;
+            transform: translateY(10px);
+            animation: fadeIn 0.3s forwards;
+            animation-delay: calc(var(--item-index) * 0.05s);
+            text-align: left;
+        }
+        
+        .dropdown-item:hover {
+            background-color: rgba(0,0,0,0.05);
+        }
+        
+        .dropdown-item.danger {
+            color: #e53e3e;
+        }
+        
+        .dropdown-item.danger:hover {
+            background-color: rgba(229, 62, 62, 0.1);
+        }
+        
+        .text-center {
+            text-align: center;
+        }
+        
+        .col-span-2 {
+            grid-column: span 2 / span 2;
+        }
+        
+        .dropdown-divider {
+            height: 1px;
+            background-color: rgba(0,0,0,0.1);
+            margin: 0.5rem 0;
+            width: 100%;
+        }
+        
+        /* Page title styles */
+        .page-header {
+            text-align: center;
+            padding: 120px 0 40px;
+            background-image: linear-gradient(-225deg, var(--gradient-search) 0%, var(--gradient-search-end) 67%, var(--gradient-mid) 100%);
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .page-header h1 {
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            position: relative;
+            z-index: 2;
+        }
+        
+        .page-header p {
+            font-size: 1.2rem;
+            max-width: 600px;
+            margin: 0 auto;
+            opacity: 0.9;
+            position: relative;
+            z-index: 2;
+        }
+        
+        .page-header::before {
+            content: '';
+            position: absolute;
+            top: -50px;
+            right: -50px;
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.1);
+            z-index: 1;
+        }
+        
+        .page-header::after {
+            content: '';
+            position: absolute;
+            bottom: -50px;
+            left: -50px;
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.1);
+            z-index: 1;
+        }
+        
+        /* Filter buttons */
+        .filter-container {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin: 20px 0 35px;
+        }
+        
+        .filter-btn {
+            padding: 8px 16px;
+            border-radius: 20px;
+            background-color: rgba(52, 152, 219, 0.1);
+            color: var(--gradient-search);
+            border: none;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        .filter-btn:hover {
+            background-color: rgba(52, 152, 219, 0.2);
+            transform: translateY(-2px);
+        }
+        
+        .filter-btn.active {
+            background-color: var(--gradient-search);
+            color: white;
+        }
+        
+        /* Search History Grid Layout */
+        .history-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 50px 20px;
+        }
+        
+        .history-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 30px;
+            margin-top: 30px;
+        }
+        
+        .search-card {
+            position: relative;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: var(--card-shadow);
+            transition: all 0.3s ease;
+            height: 230px;
+            background-image: linear-gradient(147deg, var(--gradient-search) 0%, var(--gradient-search-end) 74%);
+        }
+        
+        .search-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.2);
+        }
+        
+        .search-content {
+            padding: 25px;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.9);
+            color: var(--text-dark);
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .search-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+            color: var(--primary-color);
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        
+        .search-time {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            margin-bottom: 15px;
+            font-size: 0.8rem;
+            color: #777;
+        }
+        
+        .search-category {
+            font-size: 0.9rem;
+            color: #555;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .search-results-count {
+            margin-bottom: 15px;
+            font-size: 0.9rem;
+        }
+        
+        .search-results-count span {
+            background-color: rgba(52, 152, 219, 0.1);
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-weight: 500;
+            font-size: 0.8rem;
+        }
+        
+        .search-footer {
+            margin-top: auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .search-actions {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .delete-btn, .search-again-btn, .share-btn {
+            background: none;
+            border: none;
+            padding: 8px;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .delete-btn {
+            color: #e53e3e;
+            background-color: rgba(229, 62, 62, 0.1);
+        }
+        
+        .delete-btn:hover {
+            background-color: rgba(229, 62, 62, 0.2);
+        }
+        
+        .search-again-btn {
+            color: var(--gradient-search);
+            background-color: rgba(52, 152, 219, 0.1);
+        }
+        
+        .search-again-btn:hover {
+            background-color: rgba(52, 152, 219, 0.2);
+        }
+        
+        .share-btn {
+            color: var(--primary-color);
+            background-color: rgba(68, 16, 122, 0.1);
+        }
+        
+        .share-btn:hover {
+            background-color: rgba(68, 16, 122, 0.2);
+        }
+        
+        .category-badge {
+            display: inline-block;
+            font-size: 0.7rem;
+            padding: 3px 8px;
+            border-radius: 12px;
+            background-color: rgba(52, 152, 219, 0.1);
+            color: var(--gradient-search);
+            margin-right: 5px;
+        }
+        
+        /* Animation for removed items */
+        @keyframes fadeOut {
+            from {
+                opacity: 1;
+                transform: scale(1);
+            }
+            to {
+                opacity: 0;
+                transform: scale(0.8);
+            }
+        }
+        
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .removing {
+            animation: fadeOut 0.5s forwards;
+        }
+        
+        /* Empty state styles */
+        .empty-state {
+            text-align: center;
+            padding: 80px 20px;
+            margin: 50px auto;
+            max-width: 600px;
+            background-color: rgba(255,255,255,0.1);
+            border-radius: 15px;
+            box-shadow: var(--card-shadow);
+        }
+        
+        .empty-state i {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            color: var(--gradient-search);
+        }
+        
+        .empty-state h3 {
+            font-size: 1.8rem;
+            margin-bottom: 15px;
+            color: var(--text-light);
+        }
+        
+        .empty-state p {
+            opacity: 0.8;
+            max-width: 450px;
+            margin: 0 auto 25px;
+            color: var(--text-light);
+        }
+        
+        .empty-state-btn {
+            background-image: linear-gradient(to right, var(--gradient-search), var(--gradient-search-end));
+            color: white;
+            padding: 12px 24px;
+            border-radius: 25px;
+            font-weight: 500;
+            border: none;
+            cursor: pointer;
+            display: inline-block;
+            transition: all 0.3s ease;
+        }
+        
+        .empty-state-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+        
+        /* Clear all button */
+        .clear-all-container {
+            text-align: center;
+            margin-top: 40px;
+        }
+        
+        .clear-all-btn {
+            background-color: rgba(229, 62, 62, 0.1);
+            color: #e53e3e;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        .clear-all-btn:hover {
+            background-color: rgba(229, 62, 62, 0.2);
+            transform: translateY(-2px);
+        }
+        
+        /* Floating back-to-top button */
+        .back-to-top {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background-image: linear-gradient(to right, var(--gradient-search), var(--gradient-search-end));
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            transition: all 0.3s ease;
+            opacity: 0;
+            visibility: hidden;
+            z-index: 999;
+        }
+        
+        .back-to-top.visible {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .back-to-top:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+        }
+        
+        /* Responsive styles */
+        @media screen and (max-width: 768px) {
+            .page-header h1 {
+                font-size: 2.2rem;
+            }
+            
+            .page-header p {
+                font-size: 1rem;
+            }
+            
+            .history-grid {
+                grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+                gap: 20px;
+            }
+            
+            .filter-container {
+                gap: 10px;
+            }
+            
+            .filter-btn {
+                padding: 6px 12px;
+                font-size: 0.9rem;
+            }
+        }
+        
+        @media screen and (max-width: 576px) {
+            .history-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .filter-container {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .filter-btn {
+                width: 100%;
+                max-width: 250px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Fixed Navbar -->
+    <nav class="navbar-fixed">
+        <div class="container mx-auto flex justify-between items-center">
+            <div>
+                <a href="/dashboard" class="navbar-brand">Back</a>
+            </div>
+            <div class="flex items-center">
+                <button id="theme-toggle" class="mr-4">
+                    <i class="fas fa-moon"></i> <!-- Moon icon for dark mode -->
+                </button>
+                <div class="relative">
+                    <button id="profile-btn" class="flex items-center">
+                        <img src="https://img.icons8.com/ios-filled/50/ffffff/user.png" class="w-10 h-10 rounded-full">
+                    </button>
+                    <div id="dropdown-menu" class="absolute right-0 mt-4 w-56 rounded-xl overflow-hidden opacity-0 invisible">
+                        <div class="py-2">
+                            <a href="/visited" class="dropdown-item" style="--item-index: 1">Visited</a>
+                            <a href="/favorites" class="dropdown-item" style="--item-index: 2">Favorites</a>
+                            <a href="/search-history" class="dropdown-item" style="--item-index: 3">Search History</a>
+                            <div class="dropdown-divider"></div>
+                            <a href="/edit-account" class="dropdown-item" style="--item-index: 4">Edit Account</a>
+                            <a href="/logout" class="dropdown-item" style="--item-index: 5">Log Out</a>
+                            <div class="dropdown-divider"></div>
+                            <a href="/delete-account" class="dropdown-item danger" style="--item-index: 6">Delete Account & Log Out</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Page Header -->
+    <header class="page-header">
+        <div class="container">
+            <h1>Your Search History</h1>
+            <p>Track your previous searches and quickly find what you're looking for.</p>
+        </div>
+    </header>
+
+    <!-- Search History Filter & Content -->
+    <div class="history-container">
+        <% if (searchHistory && searchHistory.length > 0) { %>
+            <!-- Filters -->
+            <div class="filter-container">
+                <button class="filter-btn active" data-filter="all">All Searches</button>
+                <button class="filter-btn" data-filter="places">Places</button>
+                <button class="filter-btn" data-filter="activities">Activities</button>
+                <button class="filter-btn" data-filter="food">Food & Dining</button>
+                <button class="filter-btn" data-filter="events">Events</button>
+            </div>
+            
+            <div class="history-grid">
+                <% searchHistory.forEach(function(search) { %>
+                    <div class="search-card" data-search-id="<%= search.id %>" data-category="<%= search.category.toLowerCase() %>">
+                        <div class="search-content">
+                            <h3 class="search-title"><%= search.query %></h3>
+                            <div class="search-time">
+                                <i class="far fa-clock"></i>
+                                <span><%= search.timestamp %></span>
+                            </div>
+                            
+                            <div class="search-category">
+                                <i class="fas fa-tag"></i>
+                                <span class="category-badge"><%= search.category %></span>
+                            </div>
+                            
+                            <div class="search-results-count">
+                                Results: <span><%= search.resultsCount %> matches</span>
+                            </div>
+                            
+                            <div class="search-footer">
+                                <div class="search-filters">
+                                    <% if (search.filters) { %>
+                                        <% if (search.filters.length > 0) { %>
+                                            <small>Filters: <%= search.filters.join(', ') %></small>
+                                        <% } %>
+                                    <% } %>
+                                </div>
+                                <div class="search-actions">
+                                    <button class="delete-btn" data-search-id="<%= search.id %>" title="Remove from history">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                    <button class="search-again-btn" data-search-id="<%= search.id %>" data-query="<%= search.query %>" title="Search again">
+                                        <i class="fas fa-search"></i>
+                                    </button>
+                                    <button class="share-btn" data-search-id="<%= search.id %>" title="Share this search">
+                                        <i class="fas fa-share-alt"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                <% }); %>
+            </div>
+            
+            <!-- Clear All Button -->
+            <div class="clear-all-container">
+                <button class="clear-all-btn" id="clear-all-btn">
+                    <i class="fas fa-trash-alt"></i> Clear All History
+                </button>
+            </div>
+        <% } else { %>
+            <div class="empty-state">
+                <i class="fas fa-search"></i>
+                <h3>No search history yet</h3>
+                <p>Your search history will appear here once you start searching for places, activities, and more.</p>
+                <a href="/search" class="empty-state-btn">Start Searching</a>
+            </div>
+        <% } %>
+    </div>
+    
+    <!-- Back to top button -->
+    <div class="back-to-top" id="back-to-top">
+        <i class="fas fa-arrow-up"></i>
+    </div>
+
+    <script>
+        // Toggle dropdown menu
+        document.getElementById('profile-btn').addEventListener('click', function() {
+            const dropdown = document.getElementById('dropdown-menu');
+            dropdown.classList.toggle('opacity-0');
+            dropdown.classList.toggle('invisible');
+        });
+        
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(event) {
+            const dropdown = document.getElementById('dropdown-menu');
+            const profileBtn = document.getElementById('profile-btn');
+            
+            if (!profileBtn.contains(event.target) && !dropdown.contains(event.target)) {
+                dropdown.classList.add('opacity-0');
+                dropdown.classList.add('invisible');
+            }
+        });
+        
+        // Filter functionality
+        const filterButtons = document.querySelectorAll('.filter-btn');
+        filterButtons.forEach(btn => {
+            btn.addEventListener('click', function() {
+                // Update active button
+                filterButtons.forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                
+                const filter = this.getAttribute('data-filter');
+                const cards = document.querySelectorAll('.search-card');
+                
+                cards.forEach(card => {
+                    if (filter === 'all') {
+                        card.style.display = 'block';
+                    } else {
+                        const category = card.getAttribute('data-category');
+                        card.style.display = category === filter ? 'block' : 'none';
+                    }
+                });
+            });
+        });
+        
+        // Handle removing search history item
+        document.querySelectorAll('.delete-btn').forEach(btn => {
+            btn.addEventListener('click', async function() {
+                const searchId = this.getAttribute('data-search-id');
+                const card = this.closest('.search-card');
+                
+                try {
+                    const response = await fetch('/api/remove-search', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ 
+                            searchId: searchId
+                        }),
+                    });
+                    
+                    if (response.ok) {
+                        // Add removing animation
+                        card.classList.add('removing');
+                        
+                        // Remove card after animation
+                        setTimeout(() => {
+                            card.remove();
+                            
+                            // Check if no search history left
+                            const remainingCards = document.querySelectorAll('.search-card');
+                            if (remainingCards.length === 0) {
+                                // Show empty state
+                                const historyGrid = document.querySelector('.history-grid');
+                                const filterContainer = document.querySelector('.filter-container');
+                                const clearAllContainer = document.querySelector('.clear-all-container');
+                                
+                                if (historyGrid) historyGrid.remove();
+                                if (filterContainer) filterContainer.remove();
+                                if (clearAllContainer) clearAllContainer.remove();
+                                
+                                const container = document.querySelector('.history-container');
+                                container.innerHTML = `
+                                    <div class="empty-state">
+                                        <i class="fas fa-search"></i>
+                                        <h3>No search history yet</h3>
+                                        <p>Your search history will appear here once you start searching for places, activities, and more.</p>
+                                        <a href="/search" class="empty-state-btn">Start Searching</a>
+                                    </div>
+                                `;
+                            }
+                        }, 500);
+                    }
+                } catch (error) {
+                    console.error('Error removing search history item:', error);
+                }
+            });
+        });
+        
+        // Handle search again
+        document.querySelectorAll('.search-again-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const query = this.getAttribute('data-query');
+                window.location.href = `/search?q=${encodeURIComponent(query)}`;
+            });
+        });
+        
+        // Handle share search
+        document.querySelectorAll('.share-btn').forEach(btn => {
+            btn.addEventListener('click', async function() {
+                const searchId = this.getAttribute('data-search-id');
+                
+                try {const response = await fetch(`/api/generate-share-link`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ 
+                            searchId: searchId
+                        }),
+                    });
+                    
+                    if (response.ok) {
+                        const data = await response.json();
+                        
+                        // Create a temporary input to copy the link
+                        const tempInput = document.createElement('input');
+                        tempInput.value = data.shareLink;
+                        document.body.appendChild(tempInput);
+                        tempInput.select();
+                        document.execCommand('copy');
+                        document.body.removeChild(tempInput);
+                        
+                        // Show a toast notification
+                        alert('Shareable link copied to clipboard!');
+                    }
+                } catch (error) {
+                    console.error('Error generating share link:', error);
+                }
+            });
+        });
+        
+        // Clear all search history
+        document.getElementById('clear-all-btn')?.addEventListener('click', async function() {
+            if (confirm('Are you sure you want to clear all your search history? This action cannot be undone.')) {
+                try {
+                    const response = await fetch('/api/clear-all-searches', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        }
+                    });
+                    
+                    if (response.ok) {
+                        // Redirect to refresh the page
+                        window.location.reload();
+                    }
+                } catch (error) {
+                    console.error('Error clearing search history:', error);
+                }
+            }
+        });
+        
+        // Back to top button functionality
+        const backToTopBtn = document.getElementById('back-to-top');
+        
+        window.addEventListener('scroll', function() {
+            if (window.pageYOffset > 300) {
+                backToTopBtn.classList.add('visible');
+            } else {
+                backToTopBtn.classList.remove('visible');
+            }
+        });
+        
+        backToTopBtn.addEventListener('click', function() {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        });
+        
+        // Theme toggle functionality
+        const themeToggleBtn = document.getElementById('theme-toggle');
+        const body = document.body;
+        
+        // Check for saved theme preference or use preferred color scheme
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme) {
+            body.classList.toggle('dark', savedTheme === 'dark');
+            updateThemeIcon();
+        } else {
+            // Check for preferred color scheme
+            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            body.classList.toggle('dark', prefersDark);
+            updateThemeIcon();
+        }
+        
+        themeToggleBtn.addEventListener('click', function() {
+            body.classList.toggle('dark');
+            
+            // Save theme preference
+            localStorage.setItem('theme', body.classList.contains('dark') ? 'dark' : 'light');
+            
+            // Update icon
+            updateThemeIcon();
+        });
+        
+        function updateThemeIcon() {
+            const icon = themeToggleBtn.querySelector('i');
+            if (body.classList.contains('dark')) {
+                icon.classList.remove('fa-moon');
+                icon.classList.add('fa-sun');
+            } else {
+                icon.classList.remove('fa-sun');
+                icon.classList.add('fa-moon');
+            }
+        }
+        
+        // Initialize smooth scrollbar for better scrolling experience
+        document.addEventListener('DOMContentLoaded', function() {
+            Scrollbar.use(OverscrollPlugin);
+            Scrollbar.init(document.body, {
+                damping: 0.1,
+                plugins: {
+                    overscroll: {
+                        effect: 'bounce',
+                        damping: 0.15,
+                        maxOverscroll: 150
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>

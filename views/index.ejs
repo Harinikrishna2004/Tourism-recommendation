@@ -1,0 +1,1622 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %></title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://esm.sh/imagesloaded" type="module"></script>
+    <style>
+        @import url("https://api.fontshare.com/v2/css?f[]=archivo@100,200,300,400,500,600,700,800,900&f[]=clash-display@200,300,400,500,600,700&display=swap");
+
+        :root {
+            --slide-width: min(25vw, 300px);
+            --slide-aspect: 2 / 3;
+            --slide-height: calc(var(--slide-width) * var(--slide-aspect));
+            --slide-transition-duration: 800ms;
+            --slide-transition-easing: ease;
+            --font-archivo: "Archivo", sans-serif;
+            --font-clash-display: "Clash Display", sans-serif;
+        }
+
+        .navbar-fixed {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 50;
+            background: rgba(0, 0, 0, 0);
+            backdrop-filter: blur(20px);
+            transition: all 0.3s ease;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 1rem;
+        }
+
+        .navbar-fixed:hover {
+            background: rgba(0, 0, 0, 0.2);
+        }
+
+        .navbar-brand {
+            position: relative;
+            font-weight: bold;
+            font-size: 1.5rem;
+            color: white;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .navbar-brand::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: -4px;
+            left: 0;
+            background: white;
+            transition: width 0.3s ease;
+        }
+
+        .navbar-brand:hover::after {
+            width: 100%;
+        }
+
+        #profile-btn {
+            position: relative;
+            transition: transform 0.3s ease;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            padding: 2px;
+        }
+
+        #profile-btn:hover {
+            transform: scale(1.1);
+            border-color: rgba(255, 255, 255, 0.5);
+        }
+
+        #dropdown-menu {
+            z-index: 51;
+            transform-origin: top right;
+            transform: scale(0.95);
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        #dropdown-menu.show {
+            transform: scale(1);
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .dropdown-item {
+            color: white;
+            padding: 0.75rem 1.25rem;
+            transition: all 0.2s ease;
+            position: relative;
+            background: transparent;
+        }
+
+        .dropdown-item::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: 0;
+            background: rgba(255, 255, 255, 0.1);
+            transition: width 0.2s ease;
+            z-index: -1;
+        }
+
+        .dropdown-item:hover::before {
+            width: 100%;
+        }
+
+        .dropdown-item.danger {
+            color: #ff4f4f;
+        }
+
+        .dropdown-item.danger:hover::before {
+            background: rgba(255, 79, 79, 0.1);
+        }
+
+        .dropdown-divider {
+            height: 1px;
+            background: rgba(255, 255, 255, 0.1);
+            margin: 0.5rem 0;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateY(-10px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .dropdown-item {
+            animation: slideIn 0.2s ease forwards;
+            opacity: 0;
+            animation-delay: calc(var(--item-index) * 0.05s);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            width: 100%;
+            min-height: 100vh;
+        }
+
+        .slider-section {
+            height: 100vh;
+            display: grid;
+            place-items: center;
+            overflow: hidden;
+            position: relative;
+            margin-top: 4rem;
+            transition: transform 0.5s ease-out;
+        }
+
+        .slider {
+            width: calc(3 * var(--slide-width));
+            height: calc(var(--slide-height));
+            display: flex;
+            align-items: center;
+            position: relative;
+            z-index: 1;
+        }
+
+        .slider--btn {
+            --size: 40px;
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            opacity: 0.7;
+            transition: opacity 250ms cubic-bezier(0.215, 0.61, 0.355, 1);
+            z-index: 999;
+        }
+
+        .slider--btn svg {
+            width: var(--size);
+            height: var(--size);
+            stroke: white;
+        }
+
+        .slider--btn:hover {
+            opacity: 1;
+        }
+
+        .slides__wrapper {
+            width: 100%;
+            height: 100%;
+            display: grid;
+            place-items: center;
+        }
+
+        .slides__wrapper > * {
+            grid-area: 1 / -1;
+        }
+
+        .slides,
+        .slides--infos {
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            display: grid;
+            place-items: center;
+        }
+
+        .slides > *,
+        .slides--infos > * {
+            grid-area: 1 / -1;
+        }
+
+        .slide {
+            --slide-tx: 0px;
+            --slide-ty: 0vh;
+            --padding: 0px;
+            --offset: 0;
+            width: var(--slide-width);
+            height: auto;
+            aspect-ratio: var(--slide-aspect);
+            user-select: none;
+            perspective: 800px;
+            transform: perspective(1000px)
+                translate3d(var(--slide-tx), var(--slide-ty), var(--slide-tz, 0))
+                rotateY(var(--slide-rotY)) scale(var(--slide-scale));
+            transition: transform var(--slide-transition-duration)
+                var(--slide-transition-easing);
+        }
+
+        .slide[data-current] {
+            --slide-scale: 1.2;
+            --slide-tz: 0px;
+            --slide-tx: 0px;
+            --slide-rotY: 0;
+            pointer-events: auto;
+        }
+
+        .slide[data-next] {
+            --slide-tx: calc(1 * var(--slide-width) * 1.07);
+            --slide-rotY: -45deg;
+        }
+
+        .slide[data-previous] {
+            --slide-tx: calc(-1 * var(--slide-width) * 1.07);
+            --slide-rotY: 45deg;
+        }
+
+        .slide:not([data-current]) {
+            --slide-scale: 1;
+            --slide-tz: 0;
+            pointer-events: none;
+        }
+
+        .slide__inner {
+            --rotX: 0;
+            --rotY: 0;
+            --bgPosX: 0%;
+            --bgPosY: 0%;
+            position: relative;
+            width: calc(100% - var(--padding));
+            height: calc(100% - var(--padding));
+            transform-style: preserve-3d;
+            transform: rotateX(var(--rotX)) rotateY(var(--rotY));
+        }
+
+        .slide--image__wrapper {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        .slide--image {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            object-fit: cover;
+            transform: translate(-50%, -50%) scale(1.25)
+                translate3d(var(--bgPosX), var(--bgPosY), 0);
+            transition: filter var(--slide-transition-duration)
+                var(--slide-transition-easing);
+        }
+
+        .slide[data-current] .slide--image {
+            filter: brightness(0.8);
+        }
+
+        .slide:not([data-current]) .slide--image {
+            filter: brightness(0.5);
+        }
+
+        .slide__bg {
+            position: fixed;
+            inset: -20%;
+            background-image: var(--bg);
+            background-size: cover;
+            background-position: center center;
+            z-index: -1;
+            pointer-events: none;
+            transition: opacity var(--slide-transition-duration) ease,
+                transform var(--slide-transition-duration) ease;
+        }
+
+        .slide__bg::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(8px);
+        }
+
+        .slide__bg:not([data-current]) {
+            opacity: 0;
+        }
+
+        .slide__bg[data-previous] {
+            transform: translateX(-10%);
+        }
+
+        .slide__bg[data-next] {
+            transform: translateX(10%);
+        }
+
+        .slide-info {
+            --padding: 0px;
+            position: relative;
+            width: var(--slide-width);
+            height: 100%;
+            aspect-ratio: var(--slide-aspect);
+            user-select: none;
+            perspective: 800px;
+            z-index: 100;
+        }
+
+        .slide-info__inner {
+            position: relative;
+            width: calc(100% - var(--padding));
+            height: calc(100% - var(--padding));
+            transform-style: preserve-3d;
+            transform: rotateX(var(--rotX)) rotateY(var(--rotY));
+        }
+
+        .slide-info--text__wrapper {
+            --z-offset: 45px;
+            position: absolute;
+            height: fit-content;
+            left: -15%;
+            bottom: 15%;
+            transform: translateZ(var(--z-offset));
+            z-index: 2;
+            pointer-events: none;
+        }
+
+        .slide-info--text {
+            font-family: var(--font-clash-display);
+            color: #fff;
+            overflow: hidden;
+        }
+
+        .slide-info--text span {
+            display: block;
+            white-space: nowrap;
+            transition: var(--slide-transition-duration) var(--slide-transition-easing);
+            transition-property: opacity, transform;
+        }
+
+        .slide-info[data-current] .slide-info--text span {
+            opacity: 1;
+            transform: translate3d(0, 0, 0);
+            transition-delay: 250ms;
+        }
+
+        .slide-info:not([data-current]) .slide-info--text span {
+            opacity: 0;
+            transform: translate3d(0, 100%, 0);
+            transition-delay: 0ms;
+        }
+
+        .slide-info--text[data-title],
+        .slide-info--text[data-subtitle] {
+            font-size: min(3cqw, 2.4rem);
+            font-weight: 800;
+            letter-spacing: 0.2cqw;
+            white-space: nowrap;
+            text-transform: uppercase;
+        }
+
+        .slide-info--text[data-subtitle] {
+            margin-left: 2cqw;
+            font-size: min(2.2cqw, 1.8rem);
+            font-weight: 600;
+        }
+
+        .slide-info--text[data-description] {
+            margin-left: 1cqw;
+            font-size: min(1.5cqw, 0.95rem);
+            font-family: var(--font-archivo);
+            font-weight: 300;
+        }
+
+        .content-section {
+            position: relative;
+            z-index: 2;
+            background: transparent !important;
+        }
+
+        .loader {
+            position: fixed;
+            inset: 0;
+            display: grid;
+            place-items: center;
+            background: #000;
+            z-index: 999;
+            transition: opacity 500ms ease;
+        }
+
+        .loader__text {
+            font-family: var(--font-clash-display);
+            font-size: 2rem;
+            color: white;
+        }
+
+        body {
+            background: transparent !important;
+            overflow-y: auto;
+        }
+
+        .zoom-in-element {
+            opacity: 0;
+            transform: scale(0.94);
+            transition: opacity 0.7s ease-out, transform 0.7s ease-out;
+        }
+
+        .zoom-in-visible {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        .featured-destination {
+            overflow: hidden;
+            position: relative;
+        }
+
+        .featured-destination img {
+            transition: transform 0.8s ease-out;
+            transform-origin: center center;
+        }
+
+        .featured-destination:hover img {
+            transform: scale(1.08);
+        }
+
+        .parallax-section {
+            position: relative;
+            overflow: hidden;
+            height: 50vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .parallax-background {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 120%;
+            background-size: cover;
+            background-position: center;
+            z-index: -1;
+            will-change: transform;
+        }
+
+        .parallax-content {
+            z-index: 1;
+            color: white;
+            text-align: center;
+            padding: 2rem;
+            background: rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(4px);
+            border-radius: 1rem;
+            transform: translateY(30px);
+            opacity: 0;
+            transition: transform 1s ease, opacity 1s ease;
+        }
+
+        .parallax-content.zoom-in-visible {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .search-section {
+            transform: translateY(30px);
+            opacity: 0;
+            transition: transform 0.8s ease-out, opacity 0.8s ease-out;
+        }
+
+        .search-section.zoom-in-visible {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .bg-gray-800 {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .bg-gray-800:hover {
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+        }
+        /* Search History Dropdown */
+#searchHistoryDropdown {
+    transform: translateY(10px);
+    transition: all 0.3s ease;
+}
+
+/* Dropdown Menu (Search History) */
+#searchHistoryDropdown {
+    transform: translateY(10px);
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+    z-index: 51;
+}
+
+#searchHistoryDropdown:not(.hidden) {
+    transform: translateY(0);
+    opacity: 1;
+    visibility: visible;
+}
+
+#searchHistoryList::-webkit-scrollbar {
+    width: 8px;
+}
+
+#searchHistoryList::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 4px;
+}
+
+#searchHistoryList::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.search-history-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 10px;
+    transition: all 0.2s ease;
+    cursor: pointer;
+}
+
+.search-history-item:hover {
+    background: rgba(255, 255, 255, 0.1);
+    transform: translateX(6px);
+}
+
+.search-history-item button {
+    flex: 1;
+    text-align: left;
+    color: #a0a0a0;
+    font-size: 1rem;
+    font-family: var(--font-archivo);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.search-history-item .apply-btn {
+    background: rgba(59, 130, 246, 0.1);
+    color: #3b82f6;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.search-history-item .apply-btn:hover {
+    background: rgba(59, 130, 246, 0.2);
+    color: #60a5fa;
+}
+
+.dropdown-item {
+    padding: 0.75rem 1.25rem;
+    color: white;
+    background: transparent;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+    position: relative;
+}
+
+.dropdown-item:hover {
+    background: rgba(255, 255, 255, 0.1);
+    transform: translateX(4px);
+}
+
+.dropdown-item.danger {
+    color: #ff4f4f;
+}
+
+.dropdown-item.danger:hover {
+    background: rgba(255, 79, 79, 0.1);
+}
+#clearHistoryBtn {
+    font-family: var(--font-archivo);
+    font-weight: 500;
+}
+/* Navbar Fixed */
+.navbar-fixed {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 50;
+    background: rgba(0, 0, 0, 0);
+    backdrop-filter: blur(20px);
+    transition: all 0.3s ease;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 1rem;
+}
+
+.navbar-fixed:hover {
+    background: rgba(0, 0, 0, 0.2);
+}
+
+.navbar-brand {
+    position: relative;
+    font-weight: bold;
+    font-size: 1.5rem;
+    color: white;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    font-family: var(--font-clash-display);
+}
+
+.navbar-brand::after {
+    content: '';
+    position: absolute;
+    width: 0;
+    height: 2px;
+    bottom: -4px;
+    left: 0;
+    background: white;
+    transition: width 0.3s ease;
+}
+
+.navbar-brand:hover::after {
+    width: 100%;
+}
+
+#profile-btn {
+    position: relative;
+    transition: transform 0.3s ease;
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    padding: 2px;
+}
+
+#profile-btn:hover {
+    transform: scale(1.1);
+    border-color: rgba(255, 255, 255, 0.5);
+}
+
+/* Dropdown Menu */
+#dropdown-menu {
+    transform: translateY(10px);
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+    z-index: 51;
+}
+
+#dropdown-menu:not(.hidden) {
+    transform: translateY(0);
+    opacity: 1;
+    visibility: visible;
+}
+
+.dropdown-item {
+    padding: 0.75rem 1.25rem;
+    color: white;
+    background: transparent;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+    position: relative;
+}
+
+.dropdown-item:hover {
+    background: rgba(255, 255, 255, 0.1);
+    transform: translateX(4px);
+}
+
+.dropdown-item.danger {
+    color: #ff4f4f;
+}
+
+.dropdown-item.danger:hover {
+    background: rgba(255, 79, 79, 0.1);
+}
+
+.dropdown-divider {
+    height: 1px;
+    background: rgba(255, 255, 255, 0.1);
+    margin: 0.5rem 0;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateY(-10px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.dropdown-item {
+    animation: slideIn 0.2s ease forwards;
+    opacity: 0;
+    animation-delay: calc(var(--item-index) * 0.05s);
+}
+
+/* Search History Dropdown */
+#searchHistoryDropdown {
+    transform: translateY(10px);
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+    z-index: 52;
+}
+
+#searchHistoryDropdown:not(.hidden) {
+    transform: translateY(0);
+    opacity: 1;
+    visibility: visible;
+}
+
+#searchHistoryList::-webkit-scrollbar {
+    width: 8px;
+}
+
+#searchHistoryList::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 4px;
+}
+
+#searchHistoryList::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.search-history-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 10px;
+    transition: all 0.2s ease;
+    cursor: pointer;
+}
+
+.search-history-item:hover {
+    background: rgba(255, 255, 255, 0.1);
+    transform: translateX(6px);
+}
+
+.search-history-item button {
+    flex: 1;
+    text-align: left;
+    color: #a0a0a0;
+    font-size: 1rem;
+    font-family: var(--font-archivo);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.search-history-item .apply-btn {
+    background: rgba(59, 130, 246, 0.1);
+    color: #3b82f6;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.search-history-item .apply-btn:hover {
+    background: rgba(59, 130, 246, 0.2);
+    color: #60a5fa;
+}
+
+    </style>
+</head>
+<body class="bg-gray-900 text-white">
+    <!-- Fixed Navbar -->
+    <nav class="navbar-fixed">
+        <div class="container mx-auto flex justify-between items-center">
+            <div>
+                <a href="/" class="navbar-brand">Welcome</a>
+            </div>
+            <div class="relative">
+                <button id="profile-btn" class="flex items-center focus:outline-none">
+                    <img src="https://img.icons8.com/ios-filled/50/ffffff/user.png" class="w-10 h-10 rounded-full">
+                </button>
+                <div id="dropdown-menu" class="absolute right-0 mt-4 w-56 rounded-xl overflow-hidden opacity-0 invisible">
+    <div class="py-2 grid grid-cols-2 gap-1">
+        <!-- First row -->
+        
+        
+        <!-- Last row -->
+        <a href="/register" class="dropdown-item text-center" style="--item-index: 7">Register</a>
+        <a href="/login" class="dropdown-item text-center" style="--item-index: 8">Login</a>
+    </div>
+</div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Slider Section -->
+
+        <section class="slider-section">
+            <div class="slider">
+                <button class="slider--btn slider--btn__prev" aria-label="Previous Slide">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="m15 18-6-6 6-6" />
+                    </svg>
+                </button>
+                <div class="slides__wrapper">
+                    <div class="slides">
+                        <div class="slide" data-current>
+                            <div class="slide__inner">
+                                <div class="slide--image__wrapper">
+                                    <img class="slide--image" src="https://devloop01.github.io/voyage-slider/images/scotland-mountains.jpg" alt="Highlands, Scotland" loading="lazy" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="slide__bg" style="--bg: url(https://devloop01.github.io/voyage-slider/images/scotland-mountains.jpg)" data-current></div>
+                        <div class="slide" data-next>
+                            <div class="slide__inner">
+                                <div class="slide--image__wrapper">
+                                    <img class="slide--image" src="https://devloop01.github.io/voyage-slider/images/machu-pichu.jpg" alt="Machu Pichu, Peru" loading="lazy" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="slide__bg" style="--bg: url(https://devloop01.github.io/voyage-slider/images/machu-pichu.jpg)" data-next></div>
+                        <div class="slide" data-previous>
+                            <div class="slide__inner">
+                                <div class="slide--image__wrapper">
+                                    <img class="slide--image" src="https://devloop01.github.io/voyage-slider/images/chamonix.jpg" alt="Chamonix, France" loading="lazy" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="slide__bg" style="--bg: url(https://devloop01.github.io/voyage-slider/images/chamonix.jpg)" data-previous></div>
+                    </div>
+                    <div class="slides--infos">
+                        <div class="slide-info" data-current>
+                            <div class="slide-info__inner">
+                                <div class="slide-info--text__wrapper">
+                                    <div data-title class="slide-info--text"><span>Highlands</span></div>
+                                    <div data-subtitle class="slide-info--text"><span>Scotland</span></div>
+                                    <div data-description class="slide-info--text"><span>The mountains are calling</span></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="slide-info" data-next>
+                            <div class="slide-info__inner">
+                                <div class="slide-info--text__wrapper">
+                                    <div data-title class="slide-info--text"><span>Machu Pichu</span></div>
+                                    <div data-subtitle class="slide-info--text"><span>Peru</span></div>
+                                    <div data-description class="slide-info--text"><span>Adventure is never far away</span></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="slide-info" data-previous>
+                            <div class="slide-info__inner">
+                                <div class="slide-info--text__wrapper">
+                                    <div data-title class="slide-info--text"><span>Chamonix</span></div>
+                                    <div data-subtitle class="slide-info--text"><span>France</span></div>
+                                    <div data-description class="slide-info--text"><span>Let your dreams come true</span></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <button class="slider--btn slider--btn__next" aria-label="Next Slide">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="m9 18 6-6-6-6" />
+                    </svg>
+                </button>
+            </div>
+        </section>
+
+
+    <!-- Content Section -->
+    <div class="content-section">
+        <section class="p-6 search-section zoom-in-element">
+            <div class="bg-gray-900 p-8 rounded-xl shadow-2xl">
+                <h2 class="text-2xl font-bold mb-6 text-white">Find Your Next Adventure</h2>
+                <div class="flex flex-col md:flex-row items-center mb-6">
+                    <div class="relative flex-grow bg-gray-800 rounded-lg mr-2 mb-3 md:mb-0">
+                        <input type="text" id="search-input" class="p-4 rounded-lg bg-gray-800 w-full text-white border-none focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Search destinations, countries, or activities...">
+                    </div>
+                    <button id="searchBtn" class="bg-blue-600 hover:bg-blue-700 px-8 py-4 rounded-lg text-white font-medium shadow-lg">Search</button>
+                </div>
+                <div id="searchResults" class="grid grid-cols-1 md:grid-cols-3 gap-4"></div>
+                <form id="filterForm" class="flex flex-wrap md:flex-nowrap overflow-hidden rounded-lg shadow-lg border border-gray-700">
+                    <div class="bg-gray-800 relative group flex-1 min-w-32 border-r border-gray-700 hover:bg-gray-700 transition-colors duration-200">
+                        <div class="flex justify-between items-center cursor-pointer p-4">
+                            <div class="flex flex-col">
+                                <span class="text-blue-400 text-xs font-semibold uppercase tracking-wider mb-1">Category</span>
+                                <span class="text-white font-medium">Any</span>
+                            </div>
+                            <div class="bg-blue-500 bg-opacity-10 rounded-full p-1">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-blue-400" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+                                </svg>
+                            </div>
+                        </div>
+                        <select id="category" class="absolute inset-0 opacity-0 cursor-pointer w-full">
+                            <option value="">Any</option>
+                            <option value="beach">Beach</option>
+                            <option value="mountain">Mountain</option>
+                            <option value="city">City</option>
+                            <option value="countryside">Countryside</option>
+                            <option value="historical">Historical</option>
+                            <option value="cultural">Cultural</option>
+                        </select>
+                    </div>
+                    <div class="bg-gray-800 relative group flex-1 min-w-32 border-r border-gray-700 hover:bg-gray-700 transition-colors duration-200">
+                        <div class="flex justify-between items-center cursor-pointer p-4">
+                            <div class="flex flex-col">
+                                <span class="text-blue-400 text-xs font-semibold uppercase tracking-wider mb-1">Budget</span>
+                                <span class="text-white font-medium">Any</span>
+                            </div>
+                            <div class="bg-blue-500 bg-opacity-10 rounded-full p-1">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-blue-400" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+                                </svg>
+                            </div>
+                        </div>
+                        <select id="budget" class="absolute inset-0 opacity-0 cursor-pointer w-full">
+                            <option value="">Any</option>
+                            <option value="low">Low</option>
+                            <option value="moderate">Moderate</option>
+                            <option value="luxury">Luxury</option>
+                        </select>
+                    </div>
+                    <div class="bg-gray-800 relative group flex-1 min-w-32 border-r border-gray-700 hover:bg-gray-700 transition-colors duration-200">
+                        <div class="flex justify-between items-center cursor-pointer p-4">
+                            <div class="flex flex-col">
+                                <span class="text-blue-400 text-xs font-semibold uppercase tracking-wider mb-1">Season</span>
+                                <span class="text-white font-medium">Any</span>
+                            </div>
+                            <div class="bg-blue-500 bg-opacity-10 rounded-full p-1">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-blue-400" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+                                </svg>
+                            </div>
+                        </div>
+                        <select id="season" class="absolute inset-0 opacity-0 cursor-pointer w-full">
+                            <option value="">Any</option>
+                            <option value="spring">Spring</option>
+                            <option value="summer">Summer</option>
+                            <option value="fall">Autumn</option>
+                            <option value="winter">Winter</option>
+                        </select>
+                    </div>
+                    <div class="bg-gray-800 relative group flex-1 min-w-32 border-r border-gray-700 last:border-r-0 hover:bg-gray-700 transition-colors duration-200">
+                        <div class="flex justify-between items-center cursor-pointer p-4">
+                            <div class="flex flex-col">
+                                <span class="text-blue-400 text-xs font-semibold uppercase tracking-wider mb-1">Activity</span>
+                                <span class="text-white font-medium">Any</span>
+                            </div>
+                            <div class="bg-blue-500 bg-opacity-10 rounded-full p-1">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-blue-400" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+                                </svg>
+                            </div>
+                        </div>
+                        <select id="activity" class="absolute inset-0 opacity-0 cursor-pointer w-full">
+                            <option value="">Any</option>
+                            <option value="hiking">Hiking</option>
+                            <option value="sightseeing">Sightseeing</option>
+                            <option value="adventure_sports">Adventure Sports</option>
+                            <option value="cultural_tours">Cultural Tours</option>
+                            <option value="wildlife_safari">Wildlife Safari</option>
+                            <option value="beach_relaxation">Beach Relaxation</option>
+                            <option value="skiing">Skiing</option>
+                            <option value="camping">Camping</option>
+                            <option value="boating">Boating</option>
+                        </select>
+                    </div>
+                </form>
+                <div id="search-results" class="mt-6"></div>
+            </div>
+        </section>
+
+        <!-- Featured Destinations -->
+        <!-- Featured Destinations -->
+<section class="p-6">
+    <h2 class="text-xl font-bold mb-4 text-center">Filtered Destinations</h2>
+    <div id="filteredDestinations" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <% if (typeof filteredDestinations !== "undefined" && filteredDestinations.length > 0) { %>
+            <% filteredDestinations.forEach(dest => { %>
+                <div class="bg-gray-800 p-4 rounded-lg shadow-lg featured-destination relative">
+                    <button class="favorite-btn absolute top-2 right-2 p-2" data-id="<%= dest._id %>" data-favorited="false">
+                        <svg class="w-6 h-6 text-gray-400 hover:text-red-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
+                        </svg>
+                    </button>
+                    <img src="<%= destination.image %>" alt="<%= dest.name %>" class="w-full h-48 object-cover rounded-lg" loading="lazy">
+                    <h3 class="text-lg font-bold mt-2 text-white"><%= dest.name %></h3>
+                    <p class="text-sm text-gray-300"><%= dest.description %></p>
+                    <a href="/destinations/<%= dest._id %>" class="mt-2 inline-block bg-blue-500 px-4 py-2 rounded-lg text-white">View Details</a>
+                                    </div>
+            <% }) %>
+        <% } else { %>
+            <p class="text-center text-white col-span-3">No destinations found.</p>
+        <% } %>
+    </div>
+</section>
+    </div>
+
+    <!-- Loader -->
+    <div class="loader">
+        <span class="loader__text">0%</span>
+    </div>
+
+    <script type="module">
+        const wrap = (n, max) => (n + max) % max;
+        const lerp = (a, b, t) => a + (b - a) * t;
+    
+        class Vec2 {
+            constructor(x = 0, y = 0) { this.x = x; this.y = y; }
+            set(x, y) { this.x = x; this.y = y; }
+            lerp(v, t) { this.x = lerp(this.x, v.x, t); this.y = lerp(this.y, v.y, t); }
+        }
+    
+        const vec2 = (x = 0, y = 0) => new Vec2(x, y);
+    
+        class Raf {
+            constructor() {
+                this.rafId = 0;
+                this.callbacks = [];
+                this.raf = this.raf.bind(this);
+                this.start();
+            }
+            start() { this.raf(); }
+            stop() { cancelAnimationFrame(this.rafId); }
+            raf() {
+                this.callbacks.forEach(({ callback, id }) => callback({ id }));
+                this.rafId = requestAnimationFrame(this.raf);
+            }
+            add(callback) {
+                const id = this.callbacks.length;
+                this.callbacks.push({ callback, id });
+                return id;
+            }
+            remove(id) { this.callbacks = this.callbacks.filter(cb => cb.id !== id); }
+        }
+    
+        function tilt(node, options = {}) {
+            const trigger = options.trigger || node;
+            const target = Array.isArray(options.target) ? options.target : [options.target || node];
+            let lerpAmount = 0.06;
+            const rotDeg = { current: vec2(), target: vec2() };
+            const bgPos = { current: vec2(), target: vec2() };
+    
+            function ticker({ id }) {
+                rotDeg.current.lerp(rotDeg.target, lerpAmount);
+                bgPos.current.lerp(bgPos.target, lerpAmount);
+                target.forEach(el => {
+                    el.style.setProperty("--rotX", `${rotDeg.current.y.toFixed(2)}deg`);
+                    el.style.setProperty("--rotY", `${rotDeg.current.x.toFixed(2)}deg`);
+                    el.style.setProperty("--bgPosX", `${bgPos.current.x.toFixed(2)}%`);
+                    el.style.setProperty("--bgPosY", `${bgPos.current.y.toFixed(2)}%`);
+                });
+            }
+    
+            const onMouseMove = (e) => {
+                const { left, top, width, height } = trigger.getBoundingClientRect();
+                const offsetX = e.clientX - left;
+                const offsetY = e.clientY - top;
+                lerpAmount = 0.1;
+                const ox = (offsetX - width * 0.5) / (Math.PI * 3);
+                const oy = -(offsetY - height * 0.5) / (Math.PI * 4);
+                rotDeg.target.set(ox, oy);
+                bgPos.target.set(-ox * 0.3, oy * 0.3);
+            };
+    
+            const onMouseLeave = () => {
+                lerpAmount = 0.06;
+                rotDeg.target.set(0, 0);
+                bgPos.target.set(0, 0);
+            };
+    
+            trigger.addEventListener("mousemove", onMouseMove);
+            trigger.addEventListener("mouseleave", onMouseLeave);
+            const rafId = raf.add(ticker);
+    
+            return {
+                destroy() {
+                    trigger.removeEventListener("mousemove", onMouseMove);
+                    trigger.removeEventListener("mouseleave", onMouseLeave);
+                    raf.remove(rafId);
+                }
+            };
+        }
+    
+        const raf = new Raf();
+    
+        function initSlider() {
+            const loader = document.querySelector(".loader");
+            const slides = [...document.querySelectorAll(".slide")];
+            const slidesInfo = [...document.querySelectorAll(".slide-info")];
+            const slideBgs = [...document.querySelectorAll(".slide__bg")];
+            const buttons = {
+                prev: document.querySelector(".slider--btn__prev"),
+                next: document.querySelector(".slider--btn__next")
+            };
+    
+            if (!slides.length || !slidesInfo.length || !slideBgs.length) {
+                console.error("Slider elements missing:", { slides, slidesInfo, slideBgs });
+                return;
+            }
+    
+            loader.style.opacity = 0;
+            loader.style.pointerEvents = "none";
+    
+            slides.forEach((slide, i) => {
+                const slideInner = slide.querySelector(".slide__inner");
+                const slideInfoInner = slidesInfo[i]?.querySelector(".slide-info__inner");
+                if (slideInner && slideInfoInner) {
+                    tilt(slide, { target: [slideInner, slideInfoInner] });
+                } else {
+                    console.warn(`Tilt effect not applied to slide ${i}: missing inner elements`);
+                }
+            });
+    
+            function changeSlide(direction) {
+                // Find indices of current, previous, and next slides
+                const currentIndex = slides.findIndex(slide => slide.hasAttribute("data-current"));
+                if (currentIndex === -1) {
+                    console.error("No current slide found!");
+                    return;
+                }
+    
+                const totalSlides = slides.length;
+                const nextIndex = wrap(currentIndex + 1, totalSlides);
+                const prevIndex = wrap(currentIndex - 1, totalSlides);
+    
+                // Get current elements
+                const currentSlide = slides[currentIndex];
+                const currentInfo = slidesInfo[currentIndex];
+                const currentBg = slideBgs[currentIndex];
+    
+                // Determine new indices based on direction
+                const newCurrentIndex = direction === 1 ? nextIndex : prevIndex;
+                const newNextIndex = direction === 1 ? wrap(newCurrentIndex + 1, totalSlides) : currentIndex;
+                const newPrevIndex = direction === 1 ? currentIndex : wrap(newCurrentIndex - 1, totalSlides);
+    
+                // Clear all attributes
+                slides.forEach(slide => slide.removeAttribute("data-current"));
+                slides.forEach(slide => slide.removeAttribute("data-next"));
+                slides.forEach(slide => slide.removeAttribute("data-previous"));
+                slidesInfo.forEach(info => info.removeAttribute("data-current"));
+                slidesInfo.forEach(info => info.removeAttribute("data-next"));
+                slidesInfo.forEach(info => info.removeAttribute("data-previous"));
+                slideBgs.forEach(bg => bg.removeAttribute("data-current"));
+                slideBgs.forEach(bg => bg.removeAttribute("data-next"));
+                slideBgs.forEach(bg => bg.removeAttribute("data-previous"));
+    
+                // Assign new attributes
+                slides[newCurrentIndex].setAttribute("data-current", "");
+                slides[newNextIndex].setAttribute("data-next", "");
+                slides[newPrevIndex].setAttribute("data-previous", "");
+                slidesInfo[newCurrentIndex].setAttribute("data-current", "");
+                slidesInfo[newNextIndex].setAttribute("data-next", "");
+                slidesInfo[newPrevIndex].setAttribute("data-previous", "");
+                slideBgs[newCurrentIndex].setAttribute("data-current", "");
+                slideBgs[newNextIndex].setAttribute("data-next", "");
+                slideBgs[newPrevIndex].setAttribute("data-previous", "");
+    
+                console.log(`Slide changed: Current=${newCurrentIndex}, Next=${newNextIndex}, Previous=${newPrevIndex}`);
+            }
+    
+            if (!buttons.prev || !buttons.next) {
+                console.error("Slider buttons missing:", buttons);
+                return;
+            }
+    
+            buttons.prev.addEventListener("click", () => {
+                console.log("Previous button clicked");
+                changeSlide(-1);
+            });
+            buttons.next.addEventListener("click", () => {
+                console.log("Next button clicked");
+                changeSlide(1);
+            });
+    
+            document.addEventListener("keydown", (e) => {
+                if (e.key === "ArrowLeft") {
+                    console.log("Left arrow pressed");
+                    changeSlide(-1);
+                }
+                if (e.key === "ArrowRight") {
+                    console.log("Right arrow pressed");
+                    changeSlide(1);
+                }
+            });
+        }
+    
+        function setup() {
+            const loaderText = document.querySelector(".loader__text");
+            const images = [...document.querySelectorAll("img")];
+            let loadedImages = 0;
+            const progress = { current: 0, target: 0 };
+    
+            const updateProgress = () => {
+                loadedImages++;
+                progress.target = loadedImages / images.length;
+            };
+    
+            images.forEach(image => {
+                if (image.complete) updateProgress();
+                else image.onload = updateProgress;
+            });
+    
+            if (loadedImages === images.length) {
+                initSlider();
+                return;
+            }
+    
+            const rafId = raf.add(({ id }) => {
+                progress.current = lerp(progress.current, progress.target, 0.06);
+                const progressPercent = Math.round(progress.current * 100);
+                loaderText.textContent = `${progressPercent}%`;
+                if (progressPercent >= 100) {
+                    setTimeout(() => initSlider(), 500);
+                    raf.remove(id);
+                }
+            });
+        }
+    
+        document.addEventListener("DOMContentLoaded", () => {
+            setup();
+        });
+    </script>
+
+    <script>
+        function addFavoriteButtonListeners() {
+    const favoriteButtons = document.querySelectorAll('.favorite-btn');
+    favoriteButtons.forEach(button => {
+        button.addEventListener('click', async (e) => {
+            e.preventDefault();
+            const destinationId = button.getAttribute('data-id');
+            const isFavorited = button.getAttribute('data-favorited') === 'true';
+            
+            try {
+                const response = await fetch('/api/favorites', {
+                    method: isFavorited ? 'DELETE' : 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ destinationId })
+                });
+
+                if (!response.ok) throw new Error('Failed to update favorites');
+
+                const data = await response.json();
+                if (data.success) {
+                    // Toggle favorited state
+                    button.setAttribute('data-favorited', !isFavorited);
+                    const svg = button.querySelector('svg');
+                    if (!isFavorited) {
+                        svg.classList.remove('text-gray-400');
+                        svg.classList.add('text-red-500');
+                        svg.setAttribute('fill', 'currentColor');
+                    } else {
+                        svg.classList.add('text-gray-400');
+                        svg.classList.remove('text-red-500');
+                        svg.setAttribute('fill', 'none');
+                    }
+                    alert(`Destination ${isFavorited ? 'removed from' : 'added to'} favorites!`);
+                } else {
+                    throw new Error(data.error || 'Unknown error');
+                }
+            } catch (error) {
+                console.error('Error updating favorites:', error);
+                alert('Failed to update favorites: ' + error.message);
+            }
+        });
+    });
+}
+        document.addEventListener("DOMContentLoaded", () => {
+            addFavoriteButtonListeners();
+    const profileBtn = document.getElementById("profile-btn");
+    const dropdownMenu = document.getElementById("dropdown-menu");
+    const searchHistoryContainer = document.getElementById("searchHistoryContainer");
+    const searchHistoryDropdown = document.getElementById("searchHistoryDropdown");
+    let isDropdownOpen = false;
+
+    function toggleDropdown(event) {
+        event.stopPropagation();
+        isDropdownOpen = !isDropdownOpen;
+        if (isDropdownOpen) {
+            dropdownMenu.classList.remove("hidden");
+            document.querySelectorAll('.dropdown-item, .search-history-item').forEach(item => {
+                item.style.animation = 'none';
+                item.offsetHeight; // Trigger reflow
+                item.style.animation = null;
+            });
+        } else {
+            dropdownMenu.classList.add("hidden");
+            searchHistoryDropdown.classList.add("hidden"); // Close search history if open
+        }
+    }
+
+    function toggleSearchHistory(event) {
+        event.stopPropagation();
+        searchHistoryDropdown.classList.toggle("hidden");
+        displaySearchHistory();
+    }
+
+    profileBtn.addEventListener("click", toggleDropdown);
+    searchHistoryContainer.addEventListener("click", toggleSearchHistory);
+
+    document.addEventListener("click", (event) => {
+        if (isDropdownOpen && !dropdownMenu.contains(event.target) && !profileBtn.contains(event.target)) {
+            isDropdownOpen = false;
+            dropdownMenu.classList.add("hidden");
+            searchHistoryDropdown.classList.add("hidden");
+        }
+    });
+
+    document.getElementById("clearHistoryBtn").addEventListener("click", clearSearchHistory);
+    document.getElementById("deleteAccountButton").addEventListener("click", async () => {
+        if (!confirm("⚠ Are you sure you want to delete your account? This action is irreversible!")) return;
+        try {
+            const response = await fetch("/edit/delete-account", {
+                method: "DELETE",
+                headers: { "Content-Type": "application/json" },
+            });
+            const data = await response.json();
+            if (response.ok && data.redirectUrl) {
+                alert("✅ Account deleted successfully! Redirecting...");
+                window.location.href = data.redirectUrl;
+            } else {
+                alert("❌ Error deleting account: " + (data.error || "Unknown error"));
+            }
+        } catch (error) {
+            console.error("Fetch error:", error);
+            alert("Something went wrong! Check console logs.");
+        }
+    });
+
+    let lastScroll = 0;
+    const navbar = document.querySelector('.navbar-fixed');
+    window.addEventListener('scroll', () => {
+        const currentScroll = window.pageYOffset;
+        if (currentScroll <= 0) {
+            navbar.style.background = 'rgba(0, 0, 0, 0)';
+            return;
+        }
+        navbar.style.background = currentScroll > lastScroll ? 'rgba(0, 0, 0, 0.8)' : 'rgba(0, 0, 0, 0.2)';
+        lastScroll = currentScroll;
+    });
+
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            entry.target.classList.toggle('zoom-in-visible', entry.isIntersecting);
+        });
+    }, { threshold: 0.1, rootMargin: '0px 0px -100px 0px' });
+
+    document.querySelectorAll('.zoom-in-element').forEach(el => observer.observe(el));
+
+    window.addEventListener('scroll', () => {
+        const scrollPosition = window.scrollY;
+        document.querySelectorAll('.slide__bg[data-current]').forEach(bg => {
+            const scale = 1 + scrollPosition * 0.0005;
+            bg.style.transform = `scale(${scale}) translateX(0)`;
+        });
+
+        document.querySelectorAll('.featured-destination').forEach(dest => {
+            const rect = dest.getBoundingClientRect();
+            if (rect.top < window.innerHeight && rect.bottom > 0) {
+                const distance = window.innerHeight - rect.top;
+                const zoomFactor = 1 + Math.min(distance * 0.0003, 0.15);
+                const img = dest.querySelector('img');
+                if (img) img.style.transform = `scale(${zoomFactor})`;
+            }
+        });
+    });
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', (e) => {
+            e.preventDefault();
+            const target = document.querySelector(anchor.getAttribute('href'));
+            if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        });
+    });
+
+    const filters = ["category", "budget", "season", "activity"];
+
+filters.forEach(filter => {
+    const selectElement = document.getElementById(filter);
+    selectElement.addEventListener("change", () => {
+        const selectedValue = selectElement.value;
+
+        // Update the displayed text
+        selectElement.closest(".group").querySelector(".text-white.font-medium").textContent =
+            selectedValue !== "" ? selectElement.options[selectElement.selectedIndex].text : "Any";
+
+        // If all filters are reset, trigger the reset function
+        if (areFiltersReset()) {
+            resetSearch();
+        }
+    });
+});
+
+
+
+    fetchFilteredDestinations({});
+
+    document.getElementById("searchBtn").addEventListener("click", async () => {
+        const filters = {
+            searchQuery: document.getElementById("search-input").value.trim(),
+            category: document.getElementById("category").value,
+            budget: document.getElementById("budget").value,
+            season: document.getElementById("season").value,
+            activity: document.getElementById("activity").value
+        };
+
+        if (!Object.values(filters).some(v => v)) {
+            console.warn("No filters selected.");
+            return;
+        }
+
+        await fetchFilteredDestinations(filters);
+    });
+
+    function debounce(func, wait) {
+        let timeout;
+        return (...args) => {
+            clearTimeout(timeout);
+            timeout = setTimeout(() => func(...args), wait);
+        };
+    }
+
+    document.getElementById("search-input").addEventListener("input", debounce(() => {
+        const searchValue = document.getElementById("search-input").value.trim();
+
+if (searchValue === "") {
+    resetSearch(); // Call function to reset the searchx
+} else {
+    document.getElementById("searchBtn").click();
+}
+}, 300));
+});
+function resetSearch() {
+    // Clear search input
+    document.getElementById("search-input").value = "";
+
+    // Reset dropdowns to default value
+    ["category", "budget", "season", "activity"].forEach(filter => {
+        const selectElement = document.getElementById(filter);
+        selectElement.value = ""; // Reset value
+
+        // Update the dropdown displayed text
+        selectElement.closest(".group").querySelector(".text-white.font-medium").textContent = "Select";
+    });
+
+    // Fetch all destinations only if all filters and search are reset
+    if (areFiltersReset()) {
+        fetchFilteredDestinations({});
+    }
+}
+function areFiltersReset() {
+    return filters.every(filter => document.getElementById(filter).value === "");
+}
+function displaySearchHistory() {
+    const searchHistory = JSON.parse(localStorage.getItem("searchHistory")) || [];
+    const historyContainer = document.getElementById("searchHistoryList");
+    historyContainer.innerHTML = "";
+
+    if (searchHistory.length === 0) {
+        historyContainer.innerHTML = `
+            <li class="text-gray-400 text-center py-4 text-sm">No recent searches yet.</li>
+        `;
+        return;
+    }
+
+    searchHistory.forEach((filters, index) => {
+        const filterText = Object.entries(filters)
+            .filter(([_, value]) => value)
+            .map(([key, value]) => `${key}: ${value}`)
+            .join(", ");
+        const listItem = document.createElement("li");
+        listItem.classList.add("search-history-item");
+        listItem.innerHTML = `
+            <button onclick="applySearchHistory(${index})">${filterText || "Empty Search"}</button>
+            <button class="apply-btn" onclick="applySearchHistory(${index})">Apply</button>
+        `;
+        historyContainer.appendChild(listItem);
+    });
+}
+
+function applySearchHistory(index) {
+    const searchHistory = JSON.parse(localStorage.getItem("searchHistory")) || [];
+    if (!searchHistory[index]) return;
+
+    const filters = searchHistory[index];
+    document.getElementById("search-input").value = filters.searchQuery || "";
+    document.getElementById("category").value = filters.category || "";
+    document.getElementById("budget").value = filters.budget || "";
+    document.getElementById("season").value = filters.season || "";
+    document.getElementById("activity").value = filters.activity || "";
+
+    // Update the filter dropdown display text
+    ["category", "budget", "season", "activity"].forEach(filter => {
+        const selectElement = document.getElementById(filter);
+        const selectedValue = selectElement.options[selectElement.selectedIndex].text;
+        selectElement.closest(".group").querySelector(".text-white.font-medium").textContent = selectedValue;
+    });
+
+    document.getElementById("searchBtn").click();
+    document.getElementById("searchHistoryDropdown").classList.add("hidden");
+    document.getElementById("dropdown-menu").classList.add("hidden");
+}
+
+function clearSearchHistory() {
+    localStorage.removeItem("searchHistory");
+    displaySearchHistory();
+}
+
+async function fetchFilteredDestinations(filters) {
+    try {
+        const response = await fetch("/api/destinations/filter", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(filters)
+        });
+
+        if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+        const data = await response.json();
+
+        if (data.success) {
+            updateFilteredDestinations(data.destinations);
+            if (Object.keys(filters).length > 0 && filters.searchQuery){
+                saveSearchHistory(filters);
+            }
+        } else {
+            throw new Error(data.error || "Unknown error");
+        }
+    } catch (error) {
+        console.error("Failed to fetch destinations:", error);
+        document.getElementById("filteredDestinations").innerHTML = 
+            `<p class="text-center text-red-400 col-span-3">Error: ${error.message}</p>`;
+    }
+}
+
+
+function saveSearchHistory(filters) {
+    let searchHistory = JSON.parse(localStorage.getItem("searchHistory")) || [];
+    const filterString = JSON.stringify(filters);
+    if (!searchHistory.some(item => JSON.stringify(item) === filterString)) {
+        searchHistory.unshift(filters);
+        if (searchHistory.length > 5) searchHistory.pop();
+    }
+    localStorage.setItem("searchHistory", JSON.stringify(searchHistory));
+    displaySearchHistory();
+}
+
+function updateFilteredDestinations(destinations) {
+    const container = document.getElementById("filteredDestinations");
+    container.innerHTML = "";
+
+    if (!destinations || destinations.length === 0) {
+        container.innerHTML = `<p class="text-center text-white col-span-3">No destinations match the filter criteria.</p>`;
+        return;
+    }
+
+    destinations.forEach(dest => {
+        const destCard = document.createElement("div");
+        destCard.classList.add("bg-gray-800", "p-4", "rounded-lg", "shadow-lg", "featured-destination", "relative");
+        destCard.innerHTML = `
+            <button class="favorite-btn absolute top-2 right-2 p-2" data-id="${dest._id}" data-favorited="false">
+                <svg class="w-6 h-6 text-gray-400 hover:text-red-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
+                </svg>
+            </button>
+            <img src="${dest.image || dest.images[0]}" alt="${dest.name}" class="w-full h-48 object-cover rounded-lg" loading="lazy">
+            <h3 class="text-lg font-bold mt-2 text-white">${dest.name}</h3>
+            <p class="text-sm text-gray-300">${dest.description}</p>
+            <a href="/destinations/${dest._id}" class="mt-2 inline-block bg-blue-500 px-4 py-2 rounded-lg text-white">View Details</a>
+        `;
+        container.appendChild(destCard);
+    });
+
+    // Add event listeners to favorite buttons after rendering
+    addFavoriteButtonListeners();
+}
+    </script>
+</body>
+</html>

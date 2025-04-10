@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Favorites | Tourism App</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/smooth-scrollbar/8.6.3/smooth-scrollbar.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/smooth-scrollbar/8.6.3/plugins/overscroll.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Using the same CSS variables and base styles as the second example */
+        :root {
+            --primary-color: #3b82f6;
+            --primary-dark: #2563eb;
+            --primary-light: #93c5fd;
+            --secondary-color: #ec4899;
+            --secondary-dark: #db2777;
+            --secondary-light: #fbcfe8;
+            --gradient-start: #2563eb;
+            --gradient-end: #ec4899;
+            --accent-color: #f97316;
+            --text-light: #f8fafc;
+            --text-dark: #0f172a;
+            --text-muted: #64748b;
+            --card-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+            --container-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            --background-light: #f8fafc;
+            --background-light-accent: #f1f5f9;
+            --background-dark: #0f172a;
+            --background-dark-accent: #1e293b;
+            --background-card-light: #ffffff;
+            --background-card-dark: #1e293b;
+            --navbar-background-light: rgba(255, 255, 255, 0.8);
+            --navbar-background-dark: rgba(30, 41, 59, 0.8);
+            --dropdown-background-light: #ffffff;
+            --dropdown-background-dark: #1e293b;
+            --dropdown-text-light: var(--text-dark);
+            --dropdown-text-dark: var(--text-light);
+            --border-light: #e2e8f0;
+            --border-dark: #334155;
+            --transition-fast: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            --transition-normal: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --transition-bounce: all 0.5s cubic-bezier(0.68, -0.6, 0.32, 1.6);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+            overflow-x: hidden !important;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            font-size: 16px;
+            background: var(--background-light);
+            color: var(--text-dark);
+            min-height: 100vh;
+            line-height: 1.6;
+            transition: var(--transition-normal);
+        }
+
+        body.dark {
+            background-color: var(--background-dark);
+            color: var(--text-light);
+        }
+
+        body.dark .place-card {
+            background: var(--background-card-dark);
+            border: 1px solid var(--border-dark);
+        }
+
+        body.dark .place-card-title {
+            color: var(--text-light);
+        }
+
+        body.dark .place-card-desc {
+            color: var(--text-muted);
+        }
+
+        /* Navbar styles (reused from second example) */
+        .navbar-fixed {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: var(--navbar-background-light);
+            backdrop-filter: blur(10px);
+            padding: 15px 0;
+            z-index: 1000;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            transition: var(--transition-normal);
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+        }
+
+        body.dark .navbar-fixed {
+            background: var(--navbar-background-dark);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .navbar-brand {
+            color: var(--primary-color);
+            font-size: 1.5rem;
+            font-weight: 700;
+            transition: var(--transition-normal);
+        }
+
+        .navbar-brand:hover {
+            color: var(--secondary-color);
+            transform: translateX(5px);
+        }
+
+        /* Page Header */
+        .page-header {
+            text-align: center;
+            padding: 150px 0 80px;
+            background: linear-gradient(135deg, var(--gradient-start) 0%, var(--gradient-end) 100%);
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .page-header h1 {
+            font-size: 3.8rem;
+            font-weight: 800;
+            margin-bottom: 1.5rem;
+            background: linear-gradient(to right, #ffffff, #f0f0f0);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: headerFadeIn 1s ease-out;
+        }
+
+        .page-header p {
+            font-size: 1.25rem;
+            max-width: 600px;
+            margin: 0 auto;
+            animation: headerFadeIn 1s ease-out forwards;
+            animation-delay: 0.3s;
+        }
+
+        @keyframes headerFadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Favorites Container */
+        .favorites-container {
+            min-height: calc(100vh - 300px);
+            padding: 80px 20px;
+            background: linear-gradient(to bottom, var(--background-light), var(--background-light-accent));
+            transition: var(--transition-normal);
+        }
+
+        body.dark .favorites-container {
+            background: linear-gradient(to bottom, var(--background-dark), var(--background-dark-accent));
+        }
+
+        .favorites-grid {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 40px;
+            padding: 20px 0;
+        }
+
+        /* Place Card */
+        .place-card {
+            background: var(--background-card-light);
+            border-radius: 20px;
+            overflow: hidden;
+            transition: var(--transition-bounce);
+            box-shadow: var(--card-shadow);
+            border: 1px solid var(--border-light);
+        }
+
+        .place-card:hover {
+            transform: translateY(-15px);
+            box-shadow: 0 25px 30px -15px rgba(0, 0, 0, 0.15);
+        }
+
+        .place-card-image-container {
+            position: relative;
+            width: 100%;
+            height: 240px;
+            overflow: hidden;
+        }
+
+        .place-card-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: var(--transition-normal);
+        }
+
+        .place-card:hover .place-card-image {
+            transform: scale(1.08);
+        }
+
+        .place-card-content {
+            padding: 28px;
+        }
+
+        .place-card-title {
+            font-size: 1.65rem;
+            font-weight: 700;
+            color: var(--text-dark);
+            margin-bottom: 12px;
+            transition: var(--transition-normal);
+        }
+
+        .place-card:hover .place-card-title {
+            color: var(--primary-color);
+        }
+
+        .place-card-desc {
+            font-size: 1rem;
+            color: var(--text-muted);
+            margin-bottom: 24px;
+            line-height: 1.7;
+            display: -webkit-box;
+            -webkit-box-orient: vertical;
+            -webkit-line-clamp: 3;
+            overflow: hidden;
+        }
+
+        .place-card-info {
+            font-size: 0.95rem;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+        }
+
+        .place-card-actions {
+            display: flex;
+            gap: 12px;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 24px;
+        }
+
+        .place-card-btn {
+            padding: 12px 24px;
+            border-radius: 50px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            transition: var(--transition-normal);
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            position: relative;
+            overflow: hidden;
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-details {
+            background: linear-gradient(45deg, var(--primary-color), var(--primary-dark));
+            color: white;
+        }
+
+        .btn-details:hover {
+            background: linear-gradient(45deg, var(--primary-dark), var(--primary-light));
+            transform: translateY(-5px);
+            box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
+        }
+
+        .btn-details i {
+            transition: transform 0.3s ease;
+        }
+
+        .btn-details:hover i {
+            transform: translateX(5px);
+        }
+
+        .btn-share {
+            background: linear-gradient(45deg, var(--accent-color), #ea580c);
+            color: white;
+        }
+
+        .btn-share:hover {
+            background: linear-gradient(45deg, #ea580c, #f97316);
+            transform: translateY(-5px);
+            box-shadow: 0 6px 20px rgba(249, 115, 22, 0.4);
+        }
+
+        .btn-share i {
+            transition: transform 0.3s ease;
+        }
+
+        .btn-share:hover i {
+            transform: rotate(15deg);
+        }
+
+        .btn-unfavorite {
+            background: linear-gradient(45deg, var(--secondary-color), var(--secondary-dark));
+            color: white;
+        }
+
+        .btn-unfavorite:hover {
+            background: linear-gradient(45deg, var(--secondary-dark), var(--secondary-light));
+            transform: translateY(-5px);
+            box-shadow: 0 6px 20px rgba(236, 72, 153, 0.4);
+        }
+
+        .btn-unfavorite i {
+            transition: transform 0.3s ease;
+        }
+
+        .btn-unfavorite:hover i {
+            transform: scale(1.2);
+        }
+
+        /* Empty State */
+        .empty-card {
+            grid-column: 1 / -1;
+            background: var(--background-card-light);
+            border-radius: 24px;
+            padding: 80px 40px;
+            text-align: center;
+            box-shadow: var(--card-shadow);
+            border: 1px solid var(--border-light);
+            transition: var(--transition-normal);
+        }
+
+        body.dark .empty-card {
+            background: var(--background-card-dark);
+            border: 1px solid var(--border-dark);
+        }
+
+        .empty-card i {
+            font-size: 5rem;
+            color: var(--primary-color);
+            margin-bottom: 30px;
+            animation: pulse 3s infinite ease-in-out;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 0.8; }
+            50% { transform: scale(1.1); opacity: 1; }
+        }
+
+        .empty-card h3 {
+            font-size: 2.2rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .empty-card p {
+            font-size: 1.2rem;
+            color: var(--text-muted);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1200px) {
+            .favorites-grid {
+                grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+                gap: 30px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .favorites-grid {
+                grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+                gap: 25px;
+            }
+
+            .page-header h1 {
+                font-size: 2.8rem;
+            }
+
+            .page-header p {
+                font-size: 1rem;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .favorites-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+
+            .place-card-actions {
+                flex-direction: column;
+            }
+
+            .place-card-btn {
+                width: 100%;
+                justify-content: center;
+                margin-bottom: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Fixed Navbar -->
+    <nav class="navbar-fixed">
+        <div class="container mx-auto flex justify-between items-center">
+            <div>
+                <a href="/" class="navbar-brand">Back to Dashboard</a>
+            </div>
+            <div class="flex items-center">
+                <button id="theme-toggle" aria-label="Toggle dark mode">
+                    <i class="fas fa-moon"></i>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Page Header -->
+    <header class="page-header">
+        <div class="container">
+            <h1>Your Favorite Destinations</h1>
+            <p>Explore your curated collection of dream destinations and plan your next adventure.</p>
+        </div>
+    </header>
+
+    <!-- Favorites Section -->
+    <section class="favorites-container">
+        <div class="favorites-grid">
+            <% if (favorites.length > 0) { %>
+                <% favorites.forEach(fav => { %>
+                    <div class="place-card animate-on-scroll">
+                        <div class="place-card-image-container">
+                            <img src="<%= fav.image || fav.images[0] %>" alt="<%= fav.name %>" 
+                                 class="place-card-image" loading="lazy">
+                        </div>
+                        <div class="place-card-content">
+                            <h3 class="place-card-title"><%= fav.name %></h3>
+                            <p class="place-card-desc"><%= fav.description.substring(0, 100) %>...</p>
+                            <p class="place-card-info"><strong>Location:</strong> <%= fav.location.city %>, <%= fav.location.country %></p>
+                            <p class="place-card-info"><strong>Budget:</strong> <%= fav.budget %></p>
+                            <p class="place-card-info"><strong>Categories:</strong> <%= fav.category.join(', ') %></p>
+                            <p class="place-card-info"><strong>Best Seasons:</strong> <%= fav.bestSeasons.join(', ') %></p>
+                            <p class="place-card-info"><strong>Rating:</strong> <%= fav.averageRating.toFixed(1) %>/5</p>
+                            <div class="place-card-actions">
+                                <a href="/destinations/<%= fav._id %>" class="place-card-btn btn-details">
+                                    <i class="fas fa-eye"></i> View Details
+                                </a>
+                                <a href="/friends?dest_id=<%= fav._id %>&dest_name=<%= encodeURIComponent(fav.name) %>" 
+                                   class="place-card-btn btn-share">
+                                    <i class="fas fa-share"></i>
+                                </a>
+                                <button class="place-card-btn btn-unfavorite" data-id="<%= fav._id %>">
+                                    <i class="fas fa-heart-broken"></i> 
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                <% }) %>
+            <% } else { %>
+                <div class="empty-card animate-on-scroll">
+                    <i class="fas fa-heart"></i>
+                    <h3>No Favorites Yet</h3>
+                    <p>Start adding your favorite destinations to create your personalized travel list!</p>
+                </div>
+            <% } %>
+        </div>
+    </section>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const favoritesCount = <%- JSON.stringify(favorites.length) %>;
+            console.log('Favorites page loaded, favorites count:', favoritesCount);
+
+            // Theme toggle
+            const themeToggle = document.getElementById('theme-toggle');
+            const body = document.body;
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme === 'dark') {
+                body.classList.add('dark');
+                themeToggle.innerHTML = '<i class="fas fa-sun"></i>';
+            }
+
+            themeToggle.addEventListener('click', () => {
+                body.classList.toggle('dark');
+                if (body.classList.contains('dark')) {
+                    localStorage.setItem('theme', 'dark');
+                    themeToggle.innerHTML = '<i class="fas fa-sun"></i>';
+                } else {
+                    localStorage.setItem('theme', 'light');
+                    themeToggle.innerHTML = '<i class="fas fa-moon"></i>';
+                }
+            });
+
+            // Unfavorite button handling
+            document.querySelectorAll('.btn-unfavorite').forEach(button => {
+                button.addEventListener('click', async (e) => {
+                    e.preventDefault();
+                    const destinationId = button.getAttribute('data-id');
+                    const card = button.closest('.place-card');
+
+                    // Add animation
+                    button.style.transform = 'scale(1.2)';
+                    setTimeout(() => button.style.transform = '', 300);
+
+                    try {
+                        const response = await fetch('/api/favorites', {
+                            method: 'DELETE',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ destinationId })
+                        });
+
+                        if (!response.ok) {
+                            const errorData = await response.json();
+                            throw new Error(errorData.error || 'Failed to remove favorite');
+                        }
+
+                        const data = await response.json();
+                        if (data.success) {
+                            card.style.transition = 'transform 0.3s ease, opacity 0.3s ease';
+                            card.style.transform = 'translateY(20px)';
+                            card.style.opacity = '0';
+                            setTimeout(() => {
+                                card.remove();
+                                const remainingCards = document.querySelectorAll('.place-card').length;
+                                if (remainingCards === 0) {
+                                    document.querySelector('.favorites-grid').innerHTML = `
+                                        <div class="empty-card animate-on-scroll">
+                                            <i class="fas fa-heart"></i>
+                                            <h3>No Favorites Yet</h3>
+                                            <p>Start adding your favorite destinations to create your personalized travel list!</p>
+                                        </div>
+                                    `;
+                                }
+                            }, 300);
+                        }
+                    } catch (error) {
+                        console.error('Error removing favorite:', error);
+                        alert('Failed to remove favorite: ' + error.message);
+                    }
+                });
+            });
+
+            // Animate on scroll
+            const animateOnScroll = () => {
+                const elements = document.querySelectorAll('.animate-on-scroll:not(.visible)');
+                elements.forEach(element => {
+                    const rect = element.getBoundingClientRect();
+                    if (rect.top <= window.innerHeight * 0.85 && rect.bottom >= 0) {
+                        element.classList.add('visible');
+                    }
+                });
+            };
+
+            window.addEventListener('scroll', animateOnScroll);
+            animateOnScroll();
+        });
+    </script>
+</body>
+</html>

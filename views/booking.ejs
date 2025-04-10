@@ -1,0 +1,1543 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Book Your Dream Trip</title>
+  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <style>
+    :root {
+  /* New color scheme */
+  --dark-blue: #0f172a;        /* Deep navy blue for background */
+  --slate-blue: #1e293b;       /* Dark slate blue for cards */
+  --teal: #0d9488;             /* Vibrant teal for primary accents */
+  --light-teal: #14b8a6;       /* Lighter teal for hover states */
+  --coral: #f97316;            /* Coral for secondary accents */
+  --light-gray: #94a3b8;       /* Light slate gray for subtle accents */
+  --cream: #f8fafc;            /* Soft white for text */
+  --lighter-blue: #334155;     /* Medium slate blue for hover states */
+  
+  /* Text and background assignments */
+  --text-color: var(--cream);
+  --light-text: #cbd5e1;
+  --background: var(--dark-blue);
+  --card-bg: rgba(30, 41, 59, 0.8);
+  --border-color: rgba(148, 163, 184, 0.2);
+  --shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  --radius: 16px;
+  --glass-blur: blur(10px);
+  --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      transition: var(--transition);
+    }
+
+    body {
+      font-family: 'Montserrat', 'Poppins', sans-serif;
+      background: var(--background);
+      background-image: 
+        radial-gradient(circle at 20% 30%, rgba(15, 118, 110, 0.15), transparent 70%),
+        radial-gradient(circle at 80% 70%, rgba(249, 115, 22, 0.1), transparent 70%);
+      color: var(--text-color);
+      line-height: 1.6;
+      min-height: 100vh;
+      padding: 40px 20px;
+      overflow-x: hidden;
+    }
+
+    .main-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      position: relative;
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 50px;
+      animation: fadeInDown 1.2s ease-out;
+    }
+
+    .header h1 {
+      font-size: 42px;
+      font-weight: 700;
+      color: var(--coral);
+      margin-bottom: 12px;
+      letter-spacing: -0.5px;
+    }
+
+    .header p {
+      font-size: 18px;
+      color: var(--light-text);
+      font-weight: 300;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    .travel-icon {
+      font-size: 28px;
+      margin-right: 10px;
+      color: var(--coral);
+      animation: float 3s ease-in-out infinite;
+      display: inline-block;
+    }
+
+    .destination-highlight {
+      font-weight: 600;
+      color: var(--coral);
+      position: relative;
+      display: inline-block;
+    }
+
+    .destination-highlight::after {
+      content: '';
+      position: absolute;
+      bottom: -2px;
+      left: 0;
+      width: 100%;
+      height: 2px;
+      background: var(--coral);
+      transform: scaleX(0);
+      transform-origin: right;
+      transition: transform 0.5s ease;
+    }
+
+    .destination-highlight:hover::after {
+      transform: scaleX(1);
+      transform-origin: left;
+    }
+
+    .booking-tabs {
+      display: flex;
+      gap: 15px;
+      margin-bottom: 40px;
+      justify-content: center;
+      position: relative;
+      z-index: 1;
+    }
+
+    .tab-button {
+      background: var(--card-bg);
+      backdrop-filter: var(--glass-blur);
+      border: 1px solid var(--border-color);
+      padding: 14px 28px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      border-radius: var(--radius);
+      color: var(--text-color);
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .tab-button i {
+      font-size: 18px;
+    }
+
+    .tab-button.active {
+      background: var(--coral);
+      border-color: var(--coral);
+      color: white;
+      transform: translateY(-4px);
+      box-shadow: 0 10px 20px rgba(249, 115, 22, 0.3);
+    }
+
+    .tab-button:hover:not(.active) {
+      transform: translateY(-2px) scale(1.02);
+      box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+      border-color: rgba(249, 115, 22, 0.3);
+    }
+
+    .content-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 30px;
+      animation: fadeIn 1.2s ease-out;
+      position: relative;
+    }
+
+    @media (min-width: 992px) {
+      .content-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    .search-section, .results-container, .summary-card {
+      background: var(--card-bg);
+      backdrop-filter: var(--glass-blur);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      border: 1px solid var(--border-color);
+      padding: 30px;
+      animation: slideUp 0.8s ease-out;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .search-section::before, .results-container::before, .summary-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 5px;
+      background: linear-gradient(to right, var(--coral), var(--teal));
+      opacity: 0.8;
+    }
+
+    .search-section h2, .results-container h2, .summary-card h2 {
+      font-size: 22px;
+      margin-bottom: 25px;
+      color: var(--coral);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .search-section h2 i, .results-container h2 i, .summary-card h2 i {
+      font-size: 24px;
+    }
+
+    .form-group {
+      margin-bottom: 24px;
+      animation: fadeIn 1s ease-out;
+    }
+
+    .form-group label {
+      display: block;
+      font-weight: 500;
+      margin-bottom: 10px;
+      color: var(--text-color);
+      font-size: 15px;
+    }
+
+    .form-control {
+      width: 100%;
+      padding: 14px 16px;
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      font-size: 16px;
+      background: rgba(30, 41, 59, 0.6);
+      color: var(--text-color);
+      transition: all 0.3s ease;
+      font-family: 'Montserrat', sans-serif;
+    }
+
+    .form-control:focus {
+      outline: none;
+      border-color: var(--coral);
+      box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.2);
+      background: rgba(30, 41, 59, 0.8);
+    }
+
+    .filter-group {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 15px;
+    }
+
+    .btn {
+      padding: 14px 24px;
+      font-size: 16px;
+      border-radius: 12px;
+      cursor: pointer;
+      width: 100%;
+      background: var(--coral);
+      border: none;
+      color: white;
+      font-weight: 600;
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      box-shadow: 0 4px 15px rgba(249, 115, 22, 0.3);
+    }
+
+    .btn::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+      transition: 0.5s;
+    }
+
+    .btn:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 25px rgba(249, 115, 22, 0.4);
+      background: var(--light-coral);
+    }
+
+    .btn:hover::after {
+      left: 100%;
+    }
+
+    .input-icon-wrapper {
+      position: relative;
+    }
+
+    .input-icon {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      left: 16px;
+      color: var(--light-text);
+      font-size: 18px;
+    }
+
+    .input-with-icon {
+      padding-left: 48px;
+    }
+
+    .results-container {
+      max-height: 650px;
+      overflow-y: auto;
+      scrollbar-width: thin;
+      scrollbar-color: var(--coral) var(--dark-gray);
+    }
+
+    .results-container::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    .results-container::-webkit-scrollbar-track {
+      background: var(--dark-gray);
+      border-radius: 10px;
+    }
+
+    .results-container::-webkit-scrollbar-thumb {
+      background-color: var(--coral);
+      border-radius: 10px;
+    }
+
+    .no-results {
+      text-align: center;
+      padding: 40px 0;
+      color: var(--light-text);
+    }
+
+    .card {
+      background: rgba(30, 41, 59, 0.7);
+      border-radius: 16px;
+      padding: 24px;
+      margin-bottom: 20px;
+      border: 1px solid var(--border-color);
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      backdrop-filter: var(--glass-blur);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 4px;
+      height: 100%;
+      background: var(--coral);
+      opacity: 0;
+      transition: var(--transition);
+    }
+
+    .card:hover {
+      transform: translateY(-8px) scale(1.01);
+      box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
+      border-color: rgba(249, 115, 22, 0.3);
+    }
+
+    .card:hover::before {
+      opacity: 1;
+    }
+
+    .hotel-card, .flight-card {
+      display: flex;
+      align-items: flex-start;
+      animation: slideUp 0.5s ease-out;
+    }
+
+    .card-checkbox {
+      margin-right: 18px;
+      margin-top: 5px;
+      transform: scale(1.3);
+      accent-color: var(--coral);
+      cursor: pointer;
+    }
+
+    .card-content {
+      flex: 1;
+    }
+
+    .card-title {
+      font-size: 20px;
+      font-weight: 600;
+      margin-bottom: 8px;
+      color: var(--coral);
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 5px;
+    }
+
+    .card-detail {
+      font-size: 15px;
+      color: var(--light-text);
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .card-detail i {
+      color: var(--teal);
+      font-size: 16px;
+      width: 20px;
+      text-align: center;
+    }
+
+    .card-price {
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--cream);
+      margin-top: 12px;
+      transition: all 0.3s ease;
+      display: inline-block;
+      padding: 5px 12px;
+      background: rgba(249, 115, 22, 0.15);
+      border-radius: 8px;
+    }
+
+    .rating {
+      color: #fbbf24;
+      margin-left: 5px;
+      font-size: 16px;
+    }
+
+    .summary-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 16px 0;
+      border-bottom: 1px solid var(--border-color);
+      transition: all 0.3s ease;
+    }
+
+    .summary-item:hover {
+      background: rgba(249, 115, 22, 0.05);
+      padding-left: 8px;
+      padding-right: 8px;
+      border-radius: 8px;
+    }
+
+    .summary-item:last-child {
+      border-bottom: none;
+    }
+
+    .summary-label {
+      font-weight: 500;
+      color: var(--light-text);
+    }
+
+    .summary-value {
+      font-weight: 600;
+      color: var(--cream);
+    }
+
+    .summary-value.price {
+      color: var(--teal);
+    }
+
+    .total-row {
+      margin-top: 20px;
+      padding-top: 20px;
+      border-top: 2px solid var(--border-color);
+      font-size: 18px;
+    }
+
+    .total-row .summary-label {
+      font-size: 18px;
+      color: var(--cream);
+    }
+
+    .total-row .summary-value {
+      color: var(--coral);
+      font-size: 24px;
+      font-weight: 700;
+    }
+
+    .loading {
+      text-align: center;
+      padding: 30px;
+      color: var(--light-text);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 15px;
+    }
+
+    .loading i {
+      font-size: 30px;
+      animation: pulse 1.5s ease-in-out infinite;
+      color: var(--coral);
+    }
+
+    .flight-details {
+      display: flex;
+      align-items: center;
+      margin: 12px 0;
+      position: relative;
+      background: rgba(14, 165, 233, 0.1);
+      padding: 10px 15px;
+      border-radius: 10px;
+    }
+
+    .flight-route {
+      display: flex;
+      align-items: center;
+      flex: 1;
+      position: relative;
+    }
+
+    .flight-arrow {
+      margin: 0 15px;
+      color: var(--teal);
+      position: relative;
+      font-size: 18px;
+    }
+
+    .flight-time {
+      font-weight: 600;
+      font-size: 18px;
+      color: var(--cream);
+    }
+
+    .flight-duration {
+      background: rgba(14, 165, 233, 0.2);
+      padding: 5px 10px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--teal);
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      margin-left: 8px;
+      margin-right: 4px;
+      margin-bottom: 4px;
+      background: rgba(14, 165, 233, 0.15);
+      color: var(--teal);
+      transition: var(--transition);
+    }
+
+    .badge:hover {
+      background: rgba(14, 165, 233, 0.25);
+      transform: translateY(-2px);
+    }
+
+    /* Enhanced Animations */
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    @keyframes fadeInDown {
+      from { opacity: 0; transform: translateY(-30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes float {
+      0% { transform: translateY(0); }
+      50% { transform: translateY(-10px) rotate(5deg); }
+      100% { transform: translateY(0); }
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.1); opacity: 0.8; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+
+    @keyframes priceUpdate {
+      0% { transform: scale(1); background: rgba(249, 115, 22, 0.3); }
+      50% { transform: scale(1.1); background: rgba(249, 115, 22, 0.5); }
+      100% { transform: scale(1); background: rgba(249, 115, 22, 0.15); }
+    }
+
+    .price-updated {
+      animation: priceUpdate 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    /* Responsive Improvements */
+    @media (max-width: 768px) {
+      .header h1 {
+        font-size: 32px;
+      }
+      
+      .header p {
+        font-size: 16px;
+      }
+      
+      .booking-tabs {
+        flex-wrap: wrap;
+      }
+      
+      .tab-button {
+        flex: 1;
+        min-width: 140px;
+        padding: 12px 15px;
+        font-size: 14px;
+      }
+      
+      .search-section, .results-container, .summary-card {
+        padding: 20px;
+      }
+      
+      .filter-group {
+        grid-template-columns: 1fr;
+      }
+      
+      .card {
+        padding: 18px;
+      }
+      
+      .card-title {
+        font-size: 18px;
+      }
+      
+      .flight-time {
+        font-size: 16px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      body {
+        padding: 20px 15px;
+      }
+      
+      .header h1 {
+        font-size: 28px;
+      }
+      
+      .tab-button {
+        font-size: 13px;
+        padding: 10px;
+      }
+      
+      .card-checkbox {
+        margin-right: 12px;
+      }
+      
+      .flight-details {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+      }
+      
+      .flight-duration {
+        align-self: flex-end;
+      }
+      
+      .total-row .summary-value {
+        font-size: 20px;
+      }
+    }
+    :root {
+  /* Ultra-modern color palette */
+  --midnight: #0a0e17;         /* Deep space blue background */
+  --deep-space: #121828;       /* Slightly lighter for cards */
+  --cosmic-teal: #2dd4bf;      /* Vibrant teal - primary accent */
+  --neon-blue: #3b82f6;        /* Electric blue - secondary accent */
+  --stardust: #94a3b8;         /* Soft stardust gray for text */
+  --moonlight: #e2e8f0;        /* Bright moonlight for headings */
+  --galaxy-purple: #7c3aed;    /* Purple for special highlights */
+  --supernova: #f59e0b;        /* Golden yellow for important elements */
+  
+  /* UI Variables */
+  --text-color: var(--moonlight);
+  --light-text: var(--stardust);
+  --background: var(--midnight);
+  --card-bg: rgba(18, 24, 40, 0.85);
+  --border-color: rgba(148, 163, 184, 0.15);
+  --shadow: 0 12px 40px rgba(0, 0, 0, 0.25);
+  --radius: 18px;
+  --glass-blur: blur(12px);
+  --transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.1);
+}
+
+/* Add this after the :root section */
+body {
+  background: 
+    radial-gradient(circle at 15% 30%, rgba(45, 212, 191, 0.08), transparent 70%),
+    radial-gradient(circle at 85% 70%, rgba(59, 130, 246, 0.08), transparent 70%),
+    linear-gradient(to bottom, var(--midnight), var(--deep-space));
+  background-attachment: fixed;
+}
+
+/* Update the card styling */
+.card {
+  background: var(--card-bg);
+  backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow);
+  transition: var(--transition);
+  position: relative;
+  overflow: hidden;
+}
+
+.card::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, 
+    rgba(45, 212, 191, 0.1) 0%, 
+    rgba(59, 130, 246, 0.1) 100%);
+  z-index: -1;
+}
+
+.card:hover {
+  transform: translateY(-8px) scale(1.02);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
+  border-color: rgba(59, 130, 246, 0.3);
+}
+
+/* Update buttons */
+.btn {
+  background: linear-gradient(135deg, var(--cosmic-teal), var(--neon-blue));
+  border: none;
+  color: white;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  box-shadow: 0 4px 20px rgba(59, 130, 246, 0.3);
+  position: relative;
+  overflow: hidden;
+  z-index: 1;
+}
+
+.btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, var(--neon-blue), var(--cosmic-teal));
+  opacity: 0;
+  transition: var(--transition);
+  z-index: -1;
+}
+
+.btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 30px rgba(59, 130, 246, 0.5);
+}
+
+.btn:hover::before {
+  opacity: 1;
+}
+
+/* Update header */
+.header h1 {
+  background: linear-gradient(90deg, var(--cosmic-teal), var(--neon-blue));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  display: inline-block;
+}
+
+/* Add these new animations */
+@keyframes floatCard {
+  0% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-10px) rotate(2deg); }
+  100% { transform: translateY(0) rotate(0deg); }
+}
+
+/* Add a subtle pulse to interactive elements */
+@keyframes subtlePulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.02); }
+  100% { transform: scale(1); }
+}
+
+.tab-button:hover, .badge:hover {
+  animation: subtlePulse 1.5s ease-in-out infinite;
+}
+
+/* Update the active tab */
+.tab-button.active {
+  background: linear-gradient(135deg, var(--cosmic-teal), var(--neon-blue));
+  color: white;
+  transform: translateY(-4px);
+  box-shadow: 0 10px 30px rgba(59, 130, 246, 0.4);
+}
+
+/* Add these beautiful form controls */
+.form-control {
+  background: rgba(18, 24, 40, 0.7);
+  border: 1px solid var(--border-color);
+  color: var(--moonlight);
+  transition: var(--transition);
+}
+
+.form-control:focus {
+  border-color: var(--cosmic-teal);
+  box-shadow: 0 0 0 3px rgba(45, 212, 191, 0.2);
+  background: rgba(18, 24, 40, 0.9);
+}
+
+/* Add a beautiful scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--deep-space);
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(var(--cosmic-teal), var(--neon-blue));
+  border-radius: 10px;
+}
+  </style>
+</head>
+<body>
+  <div class="main-container">
+    <header class="header">
+      <h1><i class="fas fa-plane-departure travel-icon"></i>Book Your Dream Trip</h1>
+      <p>Find the perfect hotels and flights to <span class="destination-highlight" id="destinationDisplay"><%= destination ? destination.name : 'your destination' %></span></p>
+    </header>
+
+    <div class="booking-tabs">
+      <button class="tab-button active" data-tab="hotels"><i class="fas fa-hotel"></i> Hotels</button>
+      <button class="tab-button" data-tab="flights"><i class="fas fa-plane"></i> Flights</button>
+    </div>
+
+    <div class="content-grid">
+      <section id="hotel-search-section" class="search-section">
+        <h2><i class="fas fa-hotel"></i> Find Your Perfect Stay</h2>
+        <form id="hotel-free-search-form">
+          <div class="form-group">
+            <label for="city">Destination</label>
+            <div class="input-icon-wrapper">
+              <i class="fas fa-map-marker-alt input-icon"></i>
+              <input type="text" id="city" name="city" class="form-control input-with-icon" value="<%= destination ? destination.name : '' %>" required placeholder="Enter city or destination">
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="duration">Duration of Stay</label>
+            <div class="input-icon-wrapper">
+              <i class="fas fa-calendar-alt input-icon"></i>
+              <input type="number" id="duration" name="duration" class="form-control input-with-icon" min="1" value="1" required placeholder="Number of nights">
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="numPeople">Number of Guests</label>
+            <div class="input-icon-wrapper">
+              <i class="fas fa-users input-icon"></i>
+              <input type="number" id="numPeople" name="numPeople" class="form-control input-with-icon" min="1" value="1" required placeholder="Number of guests">
+            </div>
+          </div>
+          <div class="form-group filter-group">
+            <div>
+              <label for="priceRange">Price Range (₹)</label>
+              <select id="priceRange" name="priceRange" class="form-control">
+                <option value="">Any price</option>
+                <option value="0-5000">Up to ₹5,000</option>
+                <option value="5000-10000">₹5,000 - ₹10,000</option>
+                <option value="10000-20000">₹10,000 - ₹20,000</option>
+                <option value="20000+">₹20,000+</option>
+              </select>
+            </div>
+            <div>
+              <label for="minRating">Rating</label>
+              <select id="minRating" name="minRating" class="form-control">
+                <option value="">Any rating</option>
+                <option value="3">3+ Stars</option>
+                <option value="4">4+ Stars</option>
+                <option value="5">5 Stars</option>
+              </select>
+            </div>
+          </div>
+          <button type="submit" class="btn">
+            <i class="fas fa-search"></i> Find Hotels
+          </button>
+        </form>
+      </section>
+
+      <section id="hotel-results-section" class="results-container">
+        <h2>Available Hotels</h2>
+        <div id="hotel-free-results">
+          <div class="no-results">
+            <i class="fas fa-hotel" style="font-size: 50px; color: var(--light-text); display: block; margin-bottom: 20px;"></i>
+            <p>Search for hotels to see results</p>
+          </div>
+        </div>
+      </section>
+
+      <section id="flight-search-section" class="search-section" style="display: none;">
+        <h2><i class="fas fa-plane"></i> Find Your Flight</h2>
+        <form id="flight-search-form">
+          <div class="form-group">
+            <label for="origin">From</label>
+            <div class="input-icon-wrapper">
+              <i class="fas fa-plane-departure input-icon"></i>
+              <input type="text" id="origin" name="origin" class="form-control input-with-icon" placeholder="Airport code (e.g., DEL)" required>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="destination">To</label>
+            <div class="input-icon-wrapper">
+              <i class="fas fa-plane-arrival input-icon"></i>
+              <input type="text" id="destination" name="destination" class="form-control input-with-icon" value="<%= destination ? destination.name : '' %>" required placeholder="Destination airport">
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="date">Date of Travel</label>
+            <div class="input-icon-wrapper">
+              <i class="fas fa-calendar-day input-icon"></i>
+              <input type="date" id="date" name="date" class="form-control input-with-icon" required>
+            </div>
+          </div>
+          <button type="submit" class="btn">
+            <i class="fas fa-search"></i> Find Flights
+          </button>
+        </form>
+      </section>
+
+      <section id="flight-results-section" class="results-container" style="display: none;">
+        <h2>Available Flights</h2>
+        <div id="flight-results">
+          <div class="no-results">
+            <i class="fas fa-plane" style="font-size: 50px; color: var(--light-text); display: block; margin-bottom: 20px;"></i>
+            <p>Search for flights to see results</p>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <section id="booking-summary" class="summary-card">
+      <h2><i class="fas fa-receipt"></i> Booking Summary</h2>
+      <form id="bookingForm" action="/booking/submit-booking" method="POST">
+        <input type="hidden" id="destinationNameInput" name="destination_name" value="<%= destination ? destination.name : '' %>">
+        <input type="hidden" id="hotelPrice" name="hotel_price" value="0">
+        <input type="hidden" id="flightPrice" name="flight_price" value="0">
+        <input type="hidden" id="visitDate" name="visit_date" value="">
+        
+        <div class="summary-item">
+          <span class="summary-label">Destination</span>
+          <span class="summary-value" id="summaryDestination"><%= destination ? destination.name : 'Not selected' %></span>
+        </div>
+        <div class="summary-item">
+          <span class="summary-label">Selected Hotel</span>
+          <span class="summary-value" id="summaryHotel">Not selected</span>
+        </div>
+        <div class="summary-item">
+          <span class="summary-label">Hotel Price</span>
+          <span class="summary-value price" id="summaryHotelPrice">₹0</span>
+        </div>
+        <div class="summary-item">
+          <span class="summary-label">Selected Flight</span>
+          <span class="summary-value" id="summaryFlight">Not selected</span>
+        </div>
+        <div class="summary-item">
+          <span class="summary-label">Flight Price</span>
+          <span class="summary-value price" id="summaryFlightPrice">₹0</span>
+        </div>
+        <div class="summary-item">
+          <span class="summary-label">Travel Date</span>
+          <span class="summary-value" id="summaryDate">Not selected</span>
+        </div>
+        <div class="summary-item total-row">
+          <span class="summary-label">Total Amount</span>
+          <span class="summary-value" id="summaryTotal">₹0</span>
+          <input type="hidden" id="amountPaid" name="amount_paid" value="0">
+        </div>
+        
+        <button type="submit" class="btn" style="margin-top: 25px;">
+          <i class="fas fa-credit-card"></i> Proceed to Payment
+        </button>
+      </form>
+    </section>
+  </div>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      // Initialize elements
+      const bookingForm = document.getElementById('bookingForm');
+      const amountPaidInput = document.getElementById('amountPaid');
+      const hotelPriceInput = document.getElementById('hotelPrice');
+      const flightPriceInput = document.getElementById('flightPrice');
+      const visitDateInput = document.getElementById('visitDate');
+      const flightDateInput = document.getElementById('date');
+      const destinationElement = document.getElementById("destinationDisplay");
+      const summaryDestination = document.getElementById("summaryDestination");
+      const summaryHotel = document.getElementById("summaryHotel");
+      const summaryHotelPrice = document.getElementById("summaryHotelPrice");
+      const summaryFlight = document.getElementById("summaryFlight");
+      const summaryFlightPrice = document.getElementById("summaryFlightPrice");
+      const summaryDate = document.getElementById("summaryDate");
+      const summaryTotal = document.getElementById("summaryTotal");
+      
+      let selectedHotelPrice = 0;
+      let selectedFlightPrice = 0;
+      let selectedVisitDate = '';
+      let selectedHotelName = '';
+      let selectedFlightName = '';
+      let duration = 1;
+      let numPeople = 1;
+
+      // Tab switching functionality
+      const tabButtons = document.querySelectorAll('.tab-button');
+      tabButtons.forEach(button => {
+        button.addEventListener('click', () => {
+          tabButtons.forEach(btn => btn.classList.remove('active'));
+          button.classList.add('active');
+          
+          const tabName = button.dataset.tab;
+          if (tabName === 'hotels') {
+            document.getElementById('hotel-search-section').style.display = 'block';
+            document.getElementById('hotel-results-section').style.display = 'block';
+            document.getElementById('flight-search-section').style.display = 'none';
+            document.getElementById('flight-results-section').style.display = 'none';
+          } else if (tabName === 'flights') {
+            document.getElementById('hotel-search-section').style.display = 'none';
+            document.getElementById('hotel-results-section').style.display = 'none';
+            document.getElementById('flight-search-section').style.display = 'block';
+            document.getElementById('flight-results-section').style.display = 'block';
+          }
+        });
+      });
+
+      // Update total amount and summary
+      function updateTotalAmount() {
+        const total = selectedHotelPrice + selectedFlightPrice;
+        amountPaidInput.value = total;
+        
+        // Add animation to price changes
+        if (selectedHotelPrice !== parseInt(summaryHotelPrice.textContent.replace('₹', '').replace(/,/g, ''))) {
+          summaryHotelPrice.classList.add('price-updated');
+          setTimeout(() => summaryHotelPrice.classList.remove('price-updated'), 800);
+        }
+        if (selectedFlightPrice !== parseInt(summaryFlightPrice.textContent.replace('₹', '').replace(/,/g, ''))) {
+          summaryFlightPrice.classList.add('price-updated');
+          setTimeout(() => summaryFlightPrice.classList.remove('price-updated'), 800);
+        }
+        if (total !== parseInt(summaryTotal.textContent.replace('₹', '').replace(/,/g, ''))) {
+          summaryTotal.classList.add('price-updated');
+          setTimeout(() => summaryTotal.classList.remove('price-updated'), 800);
+        }
+
+        // Update summary values with animations
+        summaryHotelPrice.textContent = `₹${selectedHotelPrice.toLocaleString()}`;
+        summaryFlightPrice.textContent = `₹${selectedFlightPrice.toLocaleString()}`;
+        summaryTotal.textContent = `₹${total.toLocaleString()}`;
+        
+        summaryHotel.textContent = selectedHotelName || 'Not selected';
+        summaryFlight.textContent = selectedFlightName || 'Not selected';
+        
+        if (selectedVisitDate) {
+          const formattedDate = new Date(selectedVisitDate).toLocaleDateString('en-IN', {
+            day: 'numeric',
+            month: 'short',
+            year: 'numeric'
+          });
+          summaryDate.textContent = formattedDate;
+        } else {
+          summaryDate.textContent = 'Not selected';
+        }
+      }
+
+      // Handle booking form submission with Razorpay integration
+      bookingForm.addEventListener('submit', async function(e) {
+        e.preventDefault();
+
+        if (selectedHotelPrice === 0 && selectedFlightPrice === 0) {
+          alert('Please select at least a hotel or flight before proceeding.');
+          return;
+        }
+
+        selectedVisitDate = flightDateInput.value || selectedVisitDate;
+        if (!selectedVisitDate) {
+          alert('Please select a travel date before submitting the booking.');
+          return;
+        }
+        visitDateInput.value = selectedVisitDate;
+
+        const totalAmount = selectedHotelPrice + selectedFlightPrice;
+        const amountInPaise = totalAmount * 100; // Razorpay expects amount in paise (1 INR = 100 paise)
+
+        // Razorpay payment options
+        const options = {
+          key: "rzp_test_wtW3p98bS2lyiA", // Replace with your Razorpay Test Key ID
+          amount: amountInPaise, // Amount in paise
+          currency: "INR",
+          name: "Book Your Dream Trip",
+          description: "Payment for Hotel and Flight Booking",
+          image: "https://yourwebsite.com/logo.png", // Optional: Add your logo URL
+          handler: async function (response) {
+            // Handle successful payment
+            const paymentId = response.razorpay_payment_id;
+
+            // Prepare form data to send to your backend
+            const formData = new FormData(bookingForm);
+            formData.set('destination_name', destinationElement.textContent.trim());
+            formData.set('visit_date', selectedVisitDate);
+            formData.set('hotel_price', selectedHotelPrice);
+            formData.set('flight_price', selectedFlightPrice);
+            formData.set('amount_paid', totalAmount);
+            formData.append('payment_id', paymentId);
+
+            const formObject = Object.fromEntries(formData.entries());
+            const jsonData = JSON.stringify(formObject);
+
+            try {
+              const submitBtn = bookingForm.querySelector('button[type="submit"]');
+              submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+              submitBtn.disabled = true;
+
+              const response = await fetch('/booking/submit-booking', {
+                method: 'POST',
+                headers: {
+                  "Content-Type": "application/json"
+                },
+                body: jsonData
+              });
+
+              submitBtn.innerHTML = '<i class="fas fa-credit-card"></i> Proceed to Payment';
+              submitBtn.disabled = false;
+
+              if (!response.ok) {
+                throw new Error(`HTTP error! Status: ${response.status}`);
+              }
+
+              const result = await response.json();
+              if (result.success) {
+                alert('Payment successful! Booking confirmed.');
+                window.location.href = result.redirect || '/booking-success';
+              } else {
+                alert(result.message);
+              }
+            } catch (error) {
+              alert('An error occurred: ' + error.message);
+              console.error('Submission error:', error);
+            }
+          },
+          prefill: {
+            name: "Customer Name", // You can dynamically fetch this
+            email: "customer@example.com",
+            contact: "9999999999"
+          },
+          notes: {
+            booking_type: "Hotel and Flight"
+          },
+          theme: {
+            color: "#f97316" // Match your site's coral theme
+          }
+        };
+
+        // Open Razorpay Checkout
+        const razorpay = new Razorpay(options);
+        razorpay.open();
+      });
+
+      // Generate mock hotel data
+      function mockHotelData(city, numResults = 8) {
+        const hotelNames = [
+          "Grand Plaza Hotel",
+          "Riverside Retreat",
+          "Cityscape Suites",
+          "Ocean Breeze Resort",
+          "Mountain View Lodge",
+          "Royal Crown Hotel",
+          "Sunset Paradise Inn",
+          "Urban Oasis Hotel",
+          "Heritage Palace Hotel",
+          "Golden Sands Resort",
+          "Silver Maple Inn",
+          "Emerald Bay Hotel",
+          "Diamond Heights Resort",
+          "The Luxury Collection",
+          "Metropolitan Grandeur"
+        ];
+        
+        const areaNames = [
+          "City Center",
+          "Downtown",
+          "Riverside",
+          "Beach Front",
+          "Business District",
+          "Old Town",
+          "Marina Bay",
+          "Airport Area",
+          "Shopping District",
+          "Cultural Quarter"
+        ];
+        
+        const amenities = [
+          "Free Wi-Fi",
+          "Swimming Pool",
+          "Fitness Center",
+          "Restaurant",
+          "Spa",
+          "Room Service",
+          "Airport Shuttle",
+          "Business Center",
+          "Parking",
+          "Bar/Lounge"
+        ];
+        
+        const hotels = [];
+        const usedNames = new Set();
+        
+        for (let i = 0; i < numResults; i++) {
+          let hotelName;
+          do {
+            hotelName = hotelNames[Math.floor(Math.random() * hotelNames.length)];
+          } while (usedNames.has(hotelName) && usedNames.size < hotelNames.length);
+          
+          usedNames.add(hotelName);
+          
+          const rating = Math.floor(Math.random() * 3) + 3;
+          const area = areaNames[Math.floor(Math.random() * areaNames.length)];
+          const address = `${Math.floor(Math.random() * 500) + 1} ${area}, ${city}`;
+          
+          const numAmenities = Math.floor(Math.random() * 3) + 3;
+          const hotelAmenities = [];
+          const availableAmenities = [...amenities];
+          
+          for (let j = 0; j < numAmenities; j++) {
+            if (availableAmenities.length === 0) break;
+            const index = Math.floor(Math.random() * availableAmenities.length);
+            hotelAmenities.push(availableAmenities[index]);
+            availableAmenities.splice(index, 1);
+          }
+          
+          const basePrice = Math.floor(Math.random() * 220) + 80;
+          
+          const hotelInfo = {
+            name: hotelName,
+            rating: rating,
+            address: address,
+            amenities: hotelAmenities
+          };
+          
+          const vendor = {
+            name: "Best Deals",
+            price1: basePrice
+          };
+          
+          hotels.push([hotelInfo, [vendor]]);
+        }
+        
+        return hotels.sort((a, b) => b[0].rating - a[0].rating);
+      }
+
+      // Handle hotel search form submission
+      const hotelForm = document.getElementById('hotel-free-search-form');
+      hotelForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const formData = new FormData(e.target);
+        const searchData = {
+          city: formData.get('city'),
+          duration: parseInt(formData.get('duration')),
+          numPeople: parseInt(formData.get('numPeople')),
+          priceRange: formData.get('priceRange'),
+          minRating: formData.get('minRating')
+        };
+        duration = searchData.duration;
+        numPeople = searchData.numPeople;
+        
+        const resultsContainer = document.getElementById('hotel-free-results');
+        resultsContainer.innerHTML = '<div class="loading"><i class="fas fa-spinner"></i><p>Searching for perfect hotels...</p></div>';
+
+        try {
+          // Simulate API call with timeout
+          setTimeout(() => {
+            const hotels = mockHotelData(searchData.city);
+            displayHotelResults(hotels, searchData);
+          }, 1500);
+        } catch (error) {
+          console.error('Hotel Fetch Error:', error);
+          resultsContainer.innerHTML = '<div class="no-results"><i class="fas fa-exclamation-circle" style="font-size: 40px; color: #f97316; margin-bottom: 15px;"></i><p>Failed to connect to server. Please try again.</p></div>';
+        }
+      });
+
+      // Display hotel search results
+      function displayHotelResults(hotels, searchData) {
+        const resultsContainer = document.getElementById('hotel-free-results');
+        resultsContainer.innerHTML = '';
+        
+        if (!hotels || hotels.length === 0) {
+          resultsContainer.innerHTML = '<div class="no-results"><i class="fas fa-hotel" style="font-size: 50px; color: var(--light-text); margin-bottom: 20px;"></i><p>No hotels found matching your criteria.</p></div>';
+          return;
+        }
+
+        const filteredHotels = hotels.filter(hotel => {
+          const [hotelInfo, vendors] = hotel;
+          const basePriceInUSD = vendors[0].price1;
+          const basePriceInINR = Math.round(basePriceInUSD * 83);
+          const totalPrice = basePriceInINR * searchData.duration * Math.ceil(searchData.numPeople / 2);
+
+          let priceMatch = true;
+          if (searchData.priceRange) {
+            const [min, max] = searchData.priceRange.split('-').map(val => parseInt(val) || Infinity);
+            priceMatch = max ? (basePriceInINR >= min && basePriceInINR <= max) : (basePriceInINR >= min);
+          }
+
+          let ratingMatch = true;
+          if (searchData.minRating) {
+            const rating = hotelInfo.rating;
+            ratingMatch = rating >= parseInt(searchData.minRating);
+          }
+
+          return priceMatch && ratingMatch;
+        });
+
+        if (filteredHotels.length === 0) {
+          resultsContainer.innerHTML = '<div class="no-results"><i class="fas fa-filter" style="font-size: 50px; color: var(--light-text); margin-bottom: 20px;"></i><p>No hotels match your filters. Try adjusting your search criteria.</p></div>';
+          return;
+        }
+
+        // Add a staggered animation effect to results
+        filteredHotels.forEach((hotel, index) => {
+          const [hotelInfo, vendors] = hotel;
+          const basePriceInUSD = vendors[0].price1;
+          const basePriceInINR = Math.round(basePriceInUSD * 83);
+          const totalPrice = basePriceInINR * searchData.duration * Math.ceil(searchData.numPeople / 2);
+          
+          const cardElement = document.createElement('div');
+          cardElement.className = 'card hotel-card';
+          cardElement.style.animationDelay = `${index * 0.1}s`;
+          
+          let ratingStars = '';
+          for (let i = 0; i < hotelInfo.rating; i++) {
+            ratingStars += '<i class="fas fa-star rating"></i>';
+          }
+          
+          const amenitiesList = hotelInfo.amenities.map(amenity => 
+            `<span class="badge">${amenity}</span>`
+          ).join(' ');
+          
+          cardElement.innerHTML = `
+            <input type="checkbox" class="card-checkbox" name="hotelSelect" value="${index}">
+            <div class="card-content">
+              <div class="card-title">${hotelInfo.name} ${ratingStars}</div>
+              <div class="card-detail"><i class="fas fa-map-marker-alt"></i> ${hotelInfo.address}</div>
+              <div class="card-detail"><i class="fas fa-bed"></i> Accommodates ${searchData.numPeople} guest(s)</div>
+              <div class="card-detail"><i class="fas fa-calendar-alt"></i> ${searchData.duration} night(s)</div>
+              <div class="card-detail" style="margin: 10px 0; display: flex; flex-wrap: wrap; gap: 5px;">${amenitiesList}</div>
+              <div class="card-price">₹${totalPrice.toLocaleString()} total</div>
+            </div>
+          `;
+          
+          const checkbox = cardElement.querySelector('input[type="checkbox"]');
+          checkbox.addEventListener('change', function() {
+            document.querySelectorAll('#hotel-free-results input[type="checkbox"]').forEach(cb => {
+              if (cb !== checkbox) cb.checked = false;
+            });
+            
+            if (this.checked) {
+              selectedHotelPrice = totalPrice;
+              selectedHotelName = hotelInfo.name;
+              hotelPriceInput.value = totalPrice;
+            } else {
+              selectedHotelPrice = 0;
+              selectedHotelName = '';
+              hotelPriceInput.value = 0;
+            }
+            
+            updateTotalAmount();
+          });
+          
+          resultsContainer.appendChild(cardElement);
+        });
+      }
+
+      // Handle flight search form submission
+      const flightForm = document.getElementById('flight-search-form');
+      flightForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const formData = new FormData(e.target);
+        const searchData = {
+          origin: formData.get('origin'),
+          destination: formData.get('destination'),
+          date: formData.get('date')
+        };
+        
+        selectedVisitDate = searchData.date;
+        visitDateInput.value = selectedVisitDate;
+        
+        const resultsContainer = document.getElementById('flight-results');
+        resultsContainer.innerHTML = '<div class="loading"><i class="fas fa-spinner"></i><p>Searching for flights...</p></div>';
+
+        try {
+          // Simulate API call with timeout
+          setTimeout(() => {
+            displayFlightResults(mockFlightData(searchData), searchData);
+          }, 1800);
+        } catch (error) {
+          console.error('Flight Fetch Error:', error);
+          resultsContainer.innerHTML = '<div class="no-results"><i class="fas fa-exclamation-circle" style="font-size: 40px; color: #f97316; margin-bottom: 15px;"></i><p>Failed to connect to server. Please try again.</p></div>';
+        }
+      });
+
+      // Generate mock flight data
+      function mockFlightData(searchData) {
+        const airlines = ['Air India', 'IndiGo', 'SpiceJet', 'Vistara', 'GoAir'];
+        const flightCodes = ['AI', 'IG', 'SG', 'UK', 'G8'];
+        const flights = [];
+        
+        const baseDate = new Date(searchData.date);
+        
+        for (let i = 0; i < 5; i++) {
+          const airline = airlines[i];
+          const flightCode = `${flightCodes[i]}${100 + Math.floor(Math.random() * 900)}`;
+          
+          const departureHour = 6 + Math.floor(Math.random() * 16);
+          const departureMinute = Math.floor(Math.random() * 60);
+          
+          const durationHours = 1 + Math.floor(Math.random() * 4);
+          const durationMinutes = Math.floor(Math.random() * 60);
+          
+          const arrivalDateTime = new Date(baseDate);
+          arrivalDateTime.setHours(departureHour + durationHours);
+          arrivalDateTime.setMinutes(departureMinute + durationMinutes);
+          
+          const departureTime = `${departureHour.toString().padStart(2, '0')}:${departureMinute.toString().padStart(2, '0')}`;
+          const arrivalTime = `${arrivalDateTime.getHours().toString().padStart(2, '0')}:${arrivalDateTime.getMinutes().toString().padStart(2, '0')}`;
+          
+          const price = 3000 + Math.floor(Math.random() * 12000);
+          const stops = Math.floor(Math.random() * 3);
+          
+          flights.push({
+            airline,
+            flightCode,
+            origin: searchData.origin,
+            destination: searchData.destination,
+            departureTime,
+            arrivalTime,
+            duration: `${durationHours}h ${durationMinutes}m`,
+            stops,
+            price
+          });
+        }
+        
+        return flights.sort((a, b) => a.price - b.price);
+      }
+
+      // Display flight search results
+      function displayFlightResults(flights, searchData) {
+        const resultsContainer = document.getElementById('flight-results');
+        resultsContainer.innerHTML = '';
+        
+        if (!flights || flights.length === 0) {
+          resultsContainer.innerHTML = '<div class="no-results"><p>No flights found for your search criteria.</p></div>';
+          return;
+        }
+
+        flights.forEach((flight, index) => {
+          const cardElement = document.createElement('div');
+          cardElement.className = 'card flight-card';
+          
+          let stopBadge;
+          if (flight.stops === 0) {
+            stopBadge = '<span class="badge">Direct</span>';
+          } else if (flight.stops === 1) {
+            stopBadge = '<span class="badge">1 Stop</span>';
+          } else {
+            stopBadge = '<span class="badge">2 Stops</span>';
+          }
+          
+          cardElement.innerHTML = `
+            <input type="checkbox" class="card-checkbox" name="flightSelect" value="${index}">
+            <div class="card-content">
+              <div class="card-title">${flight.airline} <span style="font-size: 14px; color: var(--light-text);">(${flight.flightCode})</span> ${stopBadge}</div>
+              <div class="flight-details">
+                <div class="flight-route">
+                  <div class="flight-time">${flight.departureTime}</div>
+                  <div class="flight-arrow"><i class="fas fa-long-arrow-alt-right"></i></div>
+                  <div class="flight-time">${flight.arrivalTime}</div>
+                </div>
+                <div class="flight-duration">${flight.duration}</div>
+              </div>
+              <div class="card-detail"><i class="fas fa-plane-departure"></i> ${flight.origin} to ${flight.destination}</div>
+              <div class="card-detail"><i class="fas fa-calendar-day"></i> ${new Date(searchData.date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}</div>
+              <div class="card-price">₹${flight.price.toLocaleString()}</div>
+            </div>
+          `;
+          
+          const checkbox = cardElement.querySelector('input[type="checkbox"]');
+          checkbox.addEventListener('change', function() {
+            document.querySelectorAll('#flight-results input[type="checkbox"]').forEach(cb => {
+              if (cb !== checkbox) cb.checked = false;
+            });
+            
+            if (this.checked) {
+              selectedFlightPrice = flight.price;
+              selectedFlightName = `${flight.airline} (${flight.flightCode})`;
+              flightPriceInput.value = flight.price;
+            } else {
+              selectedFlightPrice = 0;
+              selectedFlightName = '';
+              flightPriceInput.value = 0;
+            }
+            
+            updateTotalAmount();
+          });
+          
+          resultsContainer.appendChild(cardElement);
+        });
+      }
+
+      const today = new Date();
+      const formattedDate = today.toISOString().split('T')[0];
+      document.getElementById('date').setAttribute('min', formattedDate);
+      document.getElementById('date').value = formattedDate;
+      
+      selectedVisitDate = formattedDate;
+      summaryDate.textContent = today.toLocaleDateString('en-IN', {
+        day: 'numeric',
+        month: 'short',
+        year: 'numeric'
+      });
+      
+      const params = new URLSearchParams(window.location.search);
+      const destinationParam = params.get('destination');
+      if (destinationParam) {
+        const decodedDestination = decodeURIComponent(destinationParam);
+        if (destinationElement) {
+          destinationElement.textContent = decodedDestination;
+        }
+        document.getElementById('city').value = decodedDestination;
+        document.getElementById('destination').value = decodedDestination;
+        summaryDestination.textContent = decodedDestination;
+      }
+    });
+  </script>
+</body>
+</html>
