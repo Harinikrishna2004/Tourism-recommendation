@@ -37,7 +37,7 @@ const app = express();
 connectDB();
 
 // Middleware: Parse JSON and URL-encoded data
-app.use(express.json());
+app.use(express.static('public));
 app.use('/uploads', express.static('uploads'));
 app.use(express.urlencoded({ extended: true }));
 app.use(cors({ credentials: true, origin: "http://localhost:3000" }));
